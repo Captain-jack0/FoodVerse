@@ -1,0 +1,82 @@
+/* 📦 Form Grid Container */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1rem;
+}
+
+/* 📐 Grid Columns */
+.col-12 {
+  grid-column: span 12;
+}
+.col-6 {
+  grid-column: span 6;
+}
+.col-4 {
+  grid-column: span 4;
+}
+.col-3 {
+  grid-column: span 3;
+}
+
+/* 📱 Mobile: otomatik tam genişlik */
+@media (max-width: 768px) {
+  .col-6,
+  .col-4,
+  .col-3 {
+    grid-column: span 12;
+  }
+}
+
+/* 🧩 Input Wrapper */
+.input-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ✏️ Label */
+.input-label {
+  margin-bottom: 0.25rem;
+  font-weight: 600;
+  color: #1f2937; /* text-primary */
+}
+
+/* 🖊️ Input Field */
+.input-field {
+  width: 100%;
+  border: 1px solid #9ca3af; /* neutral */
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.2s ease-in-out;
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  height: 48px;
+}
+
+.input-field:focus {
+  border-color: #f78888; /* primary */
+}
+
+.input-error {
+  border-color: #ef4444;
+}
+
+.input-error-text {
+  color: #ef4444;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+/* 📏 Size Varyantları */
+.input-sm .input-field {
+  height: 40px;
+  font-size: 0.875rem;
+  padding: 0.25rem 0.75rem;
+}
+
+.input-lg .input-field {
+  height: 56px;
+  font-size: 1.125rem;
+  padding: 0.75rem 1.25rem;
+}

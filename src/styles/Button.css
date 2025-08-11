@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #f78888;
+  --color-secondary: #f3d250;
+  --color-accent: #5da2d5;
+  --color-info: #90ccf4;
+  --color-error: #ef4444;
+  --color-success: #4caf50;
+  --color-warning: #f59e0b;
+  --color-neutral: #9ca3af;
+  --color-background: #ececec;
+  --color-surface: #ffffff;
+
+  --font-base: "Nunito", "sans-serif";
+}
+
+.my-button-style {
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease-in-out;
+  background-color: transparent;
+  cursor: pointer;
+  border: 1px solid;
+}
+
+/* Varyant renk stilleri */
+.my-button-style.primary {
+  color: #f78888;
+  border-color: #f78888;
+}
+.my-button-style.primary:hover {
+  background-color: #f78888;
+  color: white;
+}
+
+.my-button-style.secondary {
+  color: #f3d250;
+  border-color: #f3d250;
+}
+.my-button-style.secondary:hover {
+  background-color: #f3d250;
+  color: white;
+}
+
+.my-button-style.accent {
+  color: #5da2d5;
+  border-color: #5da2d5;
+}
+.my-button-style.accent:hover {
+  background-color: #5da2d5;
+  color: white;
+}
+
+.my-button-style.info {
+  color: #90ccf4;
+  border-color: #90ccf4;
+}
+.my-button-style.info:hover {
+  background-color: #5da2d5;
+  color: white;
+}
