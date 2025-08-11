@@ -15,5 +15,12 @@ function ShaeringStatesBetweenComponents() {
     </div>
   );
 }
-
+export const Example = () => {
+  return (
+    <div>
+      <h1>Sharing States Between Components</h1>
+      <ShaeringStatesBetweenComponents />
+    </div>
+  );
+};
 export default ShaeringStatesBetweenComponents;
