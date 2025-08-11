@@ -11,16 +11,9 @@ function ShaeringStatesBetweenComponents() {
   return (
     <div>
       <NavBar cartItemsCount={cartItems.length} />
-      <Cart cartItems={cartItems} />
+      <Cart cartItems={cartItems} onClear={() => setCartItems([])} />
     </div>
   );
 }
-export const Example = () => {
-  return (
-    <div>
-      <h1>Sharing States Between Components</h1>
-      <ShaeringStatesBetweenComponents />
-    </div>
-  );
-};
+
 export default ShaeringStatesBetweenComponents;
