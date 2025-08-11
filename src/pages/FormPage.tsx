@@ -1,5 +1,6 @@
 import { Formik, Form, Field, type FieldProps } from "formik";
 import * as Yup from "yup";
+import "../styles/FormPage.css";
 
 import Input from "../components/Input";
 import Button from "../components/Button";
@@ -40,7 +41,11 @@ const FormPage = () => {
       validationSchema={validationSchema}
     >
       {/* ✅ Formu karta sarıyoruz */}
-      <Card title="Kullanıcı Bilgileri" column={12}>
+      <Card
+        title="Kullanıcı Bilgileri"
+        column={12}
+        className="background-color-form"
+      >
         <Form className="form-grid">
           <Field name="ad">
             {({ field }: FieldProps) => (
@@ -62,7 +67,7 @@ const FormPage = () => {
 
           <Button
             type="submit"
-            className="my-button-style primary col-3"
+            className="my-button-style secondary col-3"
             loading={isLoading}
             onClick={handleClick}
           >

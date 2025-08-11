@@ -27,6 +27,7 @@
 
 /* Varyant renk stilleri */
 .my-button-style.primary {
+  padding: 0.5rem 1rem;
   color: #f78888;
   border-color: #f78888;
 }
@@ -36,6 +37,7 @@
 }
 
 .my-button-style.secondary {
+  padding: 0.5rem 1rem;
   color: #f3d250;
   border-color: #f3d250;
 }
@@ -45,6 +47,7 @@
 }
 
 .my-button-style.accent {
+  padding: 0.5rem 1rem;
   color: #5da2d5;
   border-color: #5da2d5;
 }
@@ -54,6 +57,7 @@
 }
 
 .my-button-style.info {
+  padding: 0.5rem 1rem;
   color: #90ccf4;
   border-color: #90ccf4;
 }
