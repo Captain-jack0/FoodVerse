@@ -41,39 +41,43 @@ const FormPage = () => {
       validationSchema={validationSchema}
     >
       {/* ✅ Formu karta sarıyoruz */}
-      <Card
-        title="Kullanıcı Bilgileri"
-        column={12}
-        className="background-color-form"
-      >
+      <Card title="Kullanıcı Bilgileri" className="background-color-form">
         <Form className="form-grid">
           <Field name="ad">
             {({ field }: FieldProps) => (
-              <Input {...field} label="Ad" column={6} />
+              <Input {...field} id="ad" label="Ad" column={6} />
             )}
           </Field>
 
           <Field name="soyad">
             {({ field }: FieldProps) => (
-              <Input {...field} label="Soyad" column={6} />
+              <Input {...field} id="soyad" label="Soyad" column={6} />
             )}
           </Field>
 
           <Field name="email">
             {({ field }: FieldProps) => (
-              <Input {...field} label="Email" type="email" column={12} />
+              <Input
+                {...field}
+                id="email"
+                label="Email"
+                type="email"
+                column={12}
+              />
             )}
           </Field>
 
           <Button
             type="submit"
-            className="my-button-style secondary col-3"
+            variant="secondary"
+            size="md"
+            className="form-grid__actions"
             loading={isLoading}
             onClick={handleClick}
           >
             Sent
           </Button>
-        </Form>{" "}
+        </Form>
       </Card>
     </Formik>
   );

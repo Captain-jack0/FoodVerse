@@ -1,0 +1,150 @@
+/* 📦 Wrapper */
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* 🧱 Table */
+.my-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 2px;
+  font-family: "Nunito", sans-serif;
+  color: #1f2937; /* text-primary */
+  border-radius: 8px;
+}
+
+/* başlık */
+.my-table thead th {
+  background: #90ccf4; /* header bg */
+  position: relative;
+  border-radius: 10px;
+  border: 1px solid #5da2d5;
+  text-align: left;
+  font-weight: 700;
+  color: #ffffff;
+
+  padding: 12px 16px;
+}
+
+/* hücreler */
+.my-table tbody td {
+  padding: 12px 16px;
+  border: 1px solid #5da2d5; /* slate-100/200 arası */
+  vertical-align: middle;
+  text-align: center;
+  border-radius: 8px;
+}
+
+/* zebra */
+.table-striped tbody tr:nth-child(odd) {
+  background: #c8cbce;
+}
+.table-striped tbody tr:nth-child(even) {
+  background: #ececec;
+}
+
+/* hover */
+.table-hover tbody tr:hover {
+  background: #ffffff;
+}
+
+/* hizalama yardımcıları */
+.cell-left {
+  text-align: center;
+}
+.cell-center {
+  text-align: center;
+}
+.cell-right {
+  text-align: center;
+}
+
+/* boyutlar */
+.table-sm thead th,
+.table-sm tbody td {
+  padding: 8px 12px;
+  font-size: 0.9rem;
+}
+.table-lg thead th,
+.table-lg tbody td {
+  padding: 14px 18px;
+  font-size: 1.05rem;
+}
+
+/* yapışkan başlık */
+.table-sticky thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+/* Toplam satırı */
+.my-table tbody tr.table-summary td {
+  background: #f9fafb;
+  font-weight: 700;
+  border-top: 2px solid #e5e7eb;
+}
+
+/* sıralama görselliği */
+.th-sortable {
+  cursor: pointer;
+  user-select: none;
+}
+.th-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.th-caret {
+  font-size: 10px;
+  color: #64748b;
+}
+.th-sort-asc .th-caret {
+  color: #f78888;
+  transform: translateY(-1px);
+}
+.th-sort-desc .th-caret {
+  color: #f78888;
+  transform: translateY(1px);
+}
+
+/* boş durum */
+.table-empty {
+  text-align: center;
+  padding: 24px;
+  color: #64748b; /* slate-500 */
+}
+
+/* sayfalama */
+.table-pagination {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+.tp-btn {
+  height: 36px;
+  min-width: 36px;
+  padding: 0 10px;
+  border: 1px solid #9ca3af;
+  border-radius: 8px;
+  background: #fff;
+  font-weight: 600;
+  color: #1f2937;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.tp-btn:hover {
+  border-color: #f78888;
+  box-shadow: 0 0 0 3px rgba(247, 136, 136, 0.15);
+}
+.tp-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.tp-info {
+  font-weight: 600;
+  color: #334155;
+}

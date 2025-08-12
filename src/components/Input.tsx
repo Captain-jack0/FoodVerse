@@ -4,6 +4,7 @@ import "../styles/Input.css";
 interface InputProps {
   label: string;
   name: string;
+  id: string;
   value?: string;
   placeholder?: string;
   type?: string;
@@ -13,11 +14,13 @@ interface InputProps {
   touched?: boolean;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
+  options?: string[];
 }
 
 const Input: React.FC<InputProps> = ({
   label,
   name,
+  id,
   value,
   placeholder = "",
   type = "text",
@@ -27,6 +30,7 @@ const Input: React.FC<InputProps> = ({
   touched,
   onChange,
   onBlur,
+  options,
 }) => {
   const columnClass = `col-${column}`;
   const sizeClass = `input-${size}`;
@@ -37,8 +41,17 @@ const Input: React.FC<InputProps> = ({
       <label htmlFor={name} className="input-label">
         {label}
       </label>
+      {type === "dropdown" && (
+        <select id={id} name={name} className="input-field">
+          {options?.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+      )}
       <input
-        id={name}
+        id={id}
         name={name}
         type={type}
         placeholder={placeholder}

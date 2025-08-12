@@ -15,3 +15,8 @@
   border-color: white transparent transparent white;
   animation: spin 0.6s linear infinite;
 }
+
+body {
+  background-color: #ececec;
+  padding: 20px;
+}

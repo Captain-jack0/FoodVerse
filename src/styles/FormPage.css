@@ -1,3 +1,44 @@
 .background-color-form {
-  background-color: #ececec !important;
+  background-color: #ffffff !important;
+}
+/* 12 kolonlu grid form */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 0.75rem; /* satır/sütun aralığı */
+}
+
+/* Responsive örnek (isteğe bağlı) */
+@media (max-width: 768px) {
+  .form-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+/* Form alanlarını kolonlara oturtmak için yardımcı sınıflar */
+.col-12 {
+  grid-column: span 12;
+}
+.col-6 {
+  grid-column: span 6;
+}
+.col-4 {
+  grid-column: span 4;
+}
+.col-3 {
+  grid-column: span 3;
+}
+
+/* Buton satırı: tüm satırı kapla, içeriği sağ-alta hizala */
+.form-grid__actions {
+  grid-column: 12 / 13; /* tam satırı kapla */
+  display: grid; /* içeride kendi gridini kur */
+  justify-content: end; /* sağa hizala (yatay) */
+  align-items: end; /* alta hizala (dikey) */
+  padding-top: 0.25rem; /* ufak boşluk */
+}
+
+/* Eğer Button bileşeninin default'u width:100% ise, sağa yaslayabilmek için: */
+.form-grid__actions .my-button-style {
+  width: auto;
 }

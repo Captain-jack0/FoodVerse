@@ -15,53 +15,197 @@
   --font-base: "Nunito", "sans-serif";
 }
 
+/* === SENİN TEMEL TASARIMIN (görünümü korur) === */
 .my-button-style {
-  padding: 0.5rem 1rem;
+  padding: 10px 20px !important;
+  border-radius: 15px;
+  font-family: "Nunito", sans-serif;
+  font-size: 16px;
   font-weight: 600;
-  border-radius: 0.5rem;
-  transition: all 0.2s ease-in-out;
+  transition: all 0.3s ease;
   background-color: transparent;
-  cursor: pointer;
   border: 1px solid;
+  text-align: center;
+
+  /* içerik hizası (butonun içi) */
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
 }
 
-/* Varyant renk stilleri */
+/* Hover dokunuşu */
+.my-button-style:hover {
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+}
+
+/* Disabled / Loading */
+.my-button-style.is-disabled,
+.my-button-style:disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+.my-button-style.is-loading {
+  opacity: 0.85;
+  pointer-events: none;
+}
+.my-button-style .spinner {
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 0.5rem;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* === VARYANT RENKLER (aynen sende) === */
 .my-button-style.primary {
-  padding: 0.5rem 1rem;
-  color: #f78888;
-  border-color: #f78888;
+  color: var(--color-primary);
+  border-color: var(--color-primary);
 }
 .my-button-style.primary:hover {
-  background-color: #f78888;
-  color: white;
+  background-color: var(--color-primary);
+  color: #fff;
 }
 
 .my-button-style.secondary {
-  padding: 0.5rem 1rem;
-  color: #f3d250;
-  border-color: #f3d250;
+  color: var(--color-secondary);
+  border-color: var(--color-secondary);
 }
 .my-button-style.secondary:hover {
-  background-color: #f3d250;
-  color: white;
+  background-color: var(--color-secondary);
+  color: #ffffff;
 }
 
 .my-button-style.accent {
-  padding: 0.5rem 1rem;
-  color: #5da2d5;
-  border-color: #5da2d5;
+  color: var(--color-accent);
+  border-color: var(--color-accent);
 }
 .my-button-style.accent:hover {
-  background-color: #5da2d5;
-  color: white;
+  background-color: var(--color-accent);
+  color: #fff;
 }
 
 .my-button-style.info {
-  padding: 0.5rem 1rem;
-  color: #90ccf4;
-  border-color: #90ccf4;
+  color: var(--color-info);
+  border-color: var(--color-info);
 }
 .my-button-style.info:hover {
-  background-color: #5da2d5;
-  color: white;
+  background-color: var(--color-info);
+  color: #ffffff;
+}
+
+.my-button-style.success {
+  color: var(--color-success);
+  border-color: var(--color-success);
+}
+.my-button-style.success:hover {
+  background-color: var(--color-success);
+  color: #fff;
+}
+
+.my-button-style.warning {
+  color: var(--color-warning);
+  border-color: var(--color-warning);
+}
+.my-button-style.warning:hover {
+  background-color: var(--color-warning);
+  color: #fff;
+}
+
+.my-button-style.error {
+  color: var(--color-error);
+  border-color: var(--color-error);
+}
+.my-button-style.error:hover {
+  background-color: var(--color-error);
+  color: #fff;
+}
+
+/* === BOYUTLAR (görünümü bozmaz) === */
+.my-button-style.size-sm {
+  padding: 6px 12px !important;
+  font-size: 14px;
+}
+.my-button-style.size-md {
+  padding: 10px 20px !important;
+  font-size: 16px;
+} /* default */
+.my-button-style.size-lg {
+  padding: 12px 24px !important;
+  font-size: 18px;
+}
+
+/* === GENİŞLİK === */
+.my-button-style.full {
+  width: 100%;
+} /* İstersen tam genişlik */
+
+/* === FLEX POZİSYON YARDIMCILARI (asıl ihtiyaç) === */
+/* Yatay hizalama (parent'ı flex-row ise çalışır) */
+.my-button-style.push-left {
+  margin-right: auto;
+}
+.my-button-style.push-right {
+  margin-left: auto;
+}
+.my-button-style.center-inline {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Dikey hizalama (parent'ı flex-column ise veya align-self için) */
+.my-button-style.self-start {
+  align-self: flex-start;
+}
+.my-button-style.self-center {
+  align-self: center;
+}
+.my-button-style.self-end {
+  align-self: flex-end;
+}
+
+/* Alt köşeye it (parent flex-column ise) */
+.my-button-style.push-bottom {
+  margin-top: auto;
+}
+
+/* === OPSİYONEL SARMALAYICI (birden fazla buton için) === */
+.btn-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+} /* yatay */
+.btn-row.end {
+  justify-content: flex-end;
+}
+.btn-row.center {
+  justify-content: center;
+}
+
+.btn-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+} /* dikey */
+.btn-col.end {
+  align-items: flex-end;
+}
+.btn-col.center {
+  align-items: center;
+}
+.my-button-style.push-right {
+  margin-left: auto;
+}
+.my-button-style.self-end {
+  align-self: flex-end;
+  width: auto;
 }

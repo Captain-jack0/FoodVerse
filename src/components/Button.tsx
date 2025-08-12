@@ -1,90 +1,94 @@
-import React, { useState } from "react";
+import React from "react";
 import "../styles/Button.css";
 
-type ButtonProps = {
+type Variant =
+  | "primary"
+  | "secondary"
+  | "accent"
+  | "info"
+  | "success"
+  | "warning"
+  | "error";
+
+type Size = "sm" | "md" | "lg";
+type AlignX = "left" | "center" | "right"; // yatay
+type AlignY = "start" | "center" | "end" | "bottom"; // dikey/bottom
+
+export type ButtonProps = {
   children: React.ReactNode;
-  variant?:
-    | "primary"
-    | "secondary"
-    | "accent"
-    | "success"
-    | "warning"
-    | "error"
-    | "neutral";
-  size?: "sm" | "md" | "lg";
-  fullWidth?: boolean;
+  variant?: Variant;
+  size?: Size;
+  full?: boolean; // 100% genişlik
+  alignX?: AlignX; // left/center/right -> margin auto ile
+  alignY?: AlignY; // start/center/end/bottom -> align-self / margin-top:auto
   loading?: boolean;
   disabled?: boolean;
-  onClick?: () => void;
   type?: "button" | "submit" | "reset";
   className?: string;
-  column?: number; // grid sistemi desteği
-  responsive?: string; // örn: "col-md-6 col-lg-4"
-  padding?: "p-sm" | "p-md" | "p-lg";
-  border?: "border" | "border-rounded" | "border-none";
-  collapsible?: boolean;
+  onClick?: React.ButtonHTMLAttributes<HTMLButtonElement>["onClick"];
 };
+
+function cx(...a: Array<string | false | null | undefined>) {
+  return a.filter(Boolean).join(" ");
+}
 
 const Button: React.FC<ButtonProps> = ({
   children,
   variant = "primary",
   size = "md",
-  fullWidth = false,
+  full = false,
+  alignX,
+  alignY,
   loading = false,
   disabled = false,
-  onClick,
   type = "button",
-  className = "",
-  column,
-  responsive = "",
-  padding = "p-md",
-  border = "border-rounded",
-  collapsible = false,
+  className,
+  onClick,
 }) => {
-  const [isOpen, setIsOpen] = useState(true);
+  const base = "my-button-style";
 
-  const baseClass = "my-button";
-  const classes = [
-    baseClass,
-    `${baseClass}--${variant}`,
-    `${baseClass}--${size}`,
-    fullWidth ? `${baseClass}--fullwidth` : "",
-    loading || disabled ? `${baseClass}--disabled` : "",
-    column ? `col-${column}` : "",
-    responsive,
-    padding,
-    border,
-    collapsible ? "collapsible" : "",
-    className,
-  ]
-    .filter(Boolean)
-    .join(" ");
+  const alignXClass =
+    alignX === "right"
+      ? "push-right"
+      : alignX === "left"
+      ? "push-left"
+      : alignX === "center"
+      ? "center-inline"
+      : "";
 
-  if (collapsible && !isOpen) {
-    return (
-      <button
-        className={`${baseClass}__toggle ${responsive}`}
-        onClick={() => setIsOpen(true)}
-        type="button"
-      >
-        ▼ Göster
-      </button>
-    );
-  }
+  const alignYClass =
+    alignY === "bottom"
+      ? "push-bottom"
+      : alignY === "start"
+      ? "self-start"
+      : alignY === "end"
+      ? "self-end"
+      : alignY === "center"
+      ? "self-center"
+      : "";
+
+  const classes = cx(
+    base,
+    variant, // .my-button-style.primary gibi
+    `size-${size}`, // .size-sm/md/lg
+    full && "full",
+    alignXClass,
+    alignYClass,
+    (loading || disabled) && "is-disabled",
+    loading && "is-loading",
+    className
+  );
 
   return (
     <button
       type={type}
       className={classes}
-      onClick={onClick}
       disabled={disabled || loading}
+      onClick={onClick}
+      aria-busy={loading || undefined}
     >
-      {collapsible && (
-        <span className="collapse-btn" onClick={() => setIsOpen(false)}>
-          ✖
-        </span>
-      )}
-      {loading ? <span className="spinner">⏳</span> : children}
+      {loading && <span className="spinner" aria-hidden="true" />}
+      <span>{children}</span>
     </button>
   );
 };
