@@ -23,9 +23,11 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const [loadedProfile, setLoadedProfile] = useState<Profile | null>(null);
   const [initialized, setInitialized] = useState(false);
   const userId = session?.user.id;
+  // Çıkış yapınca ya da hesap değişince eski profil gösterilmesin
+  const profile = loadedProfile?.id === userId ? loadedProfile : null;
 
   useEffect(() => {
     supabase.auth
@@ -41,10 +43,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (!userId) {
-      setProfile(null);
-      return;
-    }
+    if (!userId) return;
     let cancelled = false;
     supabase
       .from('profiles')
@@ -53,7 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .single()
       .then(({ data, error }) => {
         if (error) console.warn('Profil okunamadı', error);
-        if (!cancelled) setProfile(data);
+        if (!cancelled) setLoadedProfile(data);
       });
     return () => {
       cancelled = true;

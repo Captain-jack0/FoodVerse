@@ -1,19 +1,19 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { useState } from 'react';
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
 import { useKukkiTheme } from '@/theme/ThemeProvider';
-import { FONT, RADIUS, SPACING } from '@/theme/tokens';
+import { RADIUS, SPACING } from '@/theme/tokens';
+
+import type { NewPantryItem } from '../pantryApi';
+import { AddPantryItemForm } from './AddPantryItemForm';
 
 type PantryHeroProps = {
   itemCount: number;
   freshness: number;
   isWide: boolean;
-  onAdd: (name: string) => void;
+  onAdd: (item: NewPantryItem) => Promise<boolean>;
 };
-
-const MAX_NAME_LENGTH = 60;
 
 function freshnessWord(score: number) {
   if (score >= 90) return 'Mükemmel';
@@ -24,14 +24,6 @@ function freshnessWord(score: number) {
 export function PantryHero({ itemCount, freshness, isWide, onAdd }: PantryHeroProps) {
   const { theme } = useKukkiTheme();
   const c = theme.colors;
-  const [name, setName] = useState('');
-  const trimmed = name.trim();
-
-  const submit = () => {
-    if (!trimmed) return;
-    onAdd(trimmed);
-    setName('');
-  };
 
   return (
     <View style={[styles.hero, { backgroundColor: c.surfaceLow }]}>
@@ -45,46 +37,28 @@ export function PantryHero({ itemCount, freshness, isWide, onAdd }: PantryHeroPr
           </View>
           <AppText variant={isWide ? 'headlineXl' : 'headlineXlMobile'}>Mutfakta Ne Var Ne Yok?</AppText>
           <AppText variant="bodyMd" color="textMuted">
-            Dolabındaki {itemCount} leziz malzemeyi canlı takip et, israfı önle!
+            {itemCount === 0
+              ? 'Dolabındakileri buraya ekle, bozulmadan önce seni uyaralım!'
+              : `Dolabındaki ${itemCount} malzemeyi canlı takip et, israfı önle!`}
           </AppText>
         </View>
 
-        <View style={[styles.scorePill, { backgroundColor: c.card }]}>
-          <MaterialIcons name="eco" size={22} color={c.onSecondaryContainer} />
-          <View>
-            <AppText variant="labelSm" color="textMuted">
-              Tazelik Skoru
-            </AppText>
-            <AppText variant="headlineMd">
-              %{freshness} {freshnessWord(freshness)}
-            </AppText>
+        {itemCount > 0 && (
+          <View style={[styles.scorePill, { backgroundColor: c.card }]}>
+            <MaterialIcons name="eco" size={22} color={c.onSecondaryContainer} />
+            <View>
+              <AppText variant="labelSm" color="textMuted">
+                Tazelik Skoru
+              </AppText>
+              <AppText variant="headlineMd">
+                %{freshness} {freshnessWord(freshness)}
+              </AppText>
+            </View>
           </View>
-        </View>
+        )}
       </View>
 
-      <View style={[styles.inputRow, { backgroundColor: c.card }]}>
-        <MaterialIcons name="search" size={22} color={c.textMuted} />
-        <TextInput
-          value={name}
-          onChangeText={setName}
-          onSubmitEditing={submit}
-          maxLength={MAX_NAME_LENGTH}
-          placeholder={isWide ? 'Yeni malzeme adı yaz (örn: Çedar Peyniri, Fesleğen)...' : 'Yeni malzeme ekle...'}
-          placeholderTextColor={c.textMuted}
-          accessibilityLabel="Yeni malzeme adı"
-          returnKeyType="done"
-          style={[styles.input, { color: c.text }]}
-        />
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Malzemeyi ekle"
-          disabled={!trimmed}
-          onPress={submit}
-          style={[styles.addButton, { backgroundColor: c.surfaceHigh, opacity: trimmed ? 1 : 0.5 }]}>
-          <MaterialIcons name="add" size={18} color={c.text} />
-          <AppText variant="labelLg">Ekle</AppText>
-        </Pressable>
-      </View>
+      <AddPantryItemForm isWide={isWide} onAdd={onAdd} />
     </View>
   );
 }
@@ -104,24 +78,5 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.sm,
     borderRadius: RADIUS.full,
     boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
-  },
-  inputRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.sm,
-    paddingLeft: SPACING.md,
-    paddingRight: 6,
-    paddingVertical: 6,
-    borderRadius: RADIUS.full,
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
-  },
-  input: { flex: 1, fontFamily: FONT.medium, fontSize: 15, paddingVertical: SPACING.sm, minWidth: 0 },
-  addButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm,
-    borderRadius: RADIUS.full,
   },
 });

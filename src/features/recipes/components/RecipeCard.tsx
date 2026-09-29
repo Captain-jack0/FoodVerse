@@ -8,7 +8,7 @@ import { Tag } from '@/components/ui/Tag';
 import { useKukkiTheme } from '@/theme/ThemeProvider';
 import { RADIUS, SPACING } from '@/theme/tokens';
 
-import { RECIPE_TAGS } from '../mockRecipes';
+import { RECIPE_TAGS } from '../recipeTags';
 import type { Difficulty, Recipe, RecipeSource } from '../types';
 
 type IconName = ComponentProps<typeof MaterialIcons>['name'];

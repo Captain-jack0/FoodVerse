@@ -6,19 +6,25 @@ import { Tag } from '@/components/ui/Tag';
 import { useKukkiTheme } from '@/theme/ThemeProvider';
 import { RADIUS, SPACING } from '@/theme/tokens';
 
-type DailyQuestCardProps = {
-  /** Kurtarılması gereken (son 2 günü kalan) malzeme sayısı */
+export type Quest = {
+  label: string;
+  title: string;
+  description: string;
+  doneTitle: string;
+  doneDescription: string;
+  current: number;
   target: number;
-  /** Bunlardan tencereye atılan */
-  rescued: number;
+  unit: string;
   xp: number;
 };
 
-export function DailyQuestCard({ target, rescued, xp }: DailyQuestCardProps) {
+export function DailyQuestCard({ quest }: { quest: Quest }) {
   const { theme } = useKukkiTheme();
   const c = theme.colors;
-  const done = target > 0 && rescued >= target;
-  const progress = target === 0 ? 1 : Math.min(rescued / target, 1);
+  const { current, target } = quest;
+  const done = target > 0 && current >= target;
+  const progress = target === 0 ? 1 : Math.min(current / target, 1);
+  const percent = Math.round(progress * 100);
 
   return (
     <View style={[styles.card, { backgroundColor: c.secondaryContainer }]}>
@@ -26,39 +32,35 @@ export function DailyQuestCard({ target, rescued, xp }: DailyQuestCardProps) {
         <View style={[styles.badge, { backgroundColor: c.card }]}>
           <MaterialIcons name="bolt" size={14} color={c.onSecondaryContainer} />
           <AppText variant="labelSm" color="onSecondaryContainer">
-            Günlük Mutfak Görevi
+            {quest.label}
           </AppText>
         </View>
-        <Tag label={`+${xp} XP`} bg="card" fg="primary" />
+        <Tag label={`+${quest.xp} XP`} bg="card" fg="primary" />
       </View>
 
       <View style={styles.titleRow}>
-        <MaterialIcons name={done ? 'emoji-events' : 'timer'} size={30} color={c.onSecondaryContainer} />
+        <MaterialIcons name={done ? 'emoji-events' : 'flag'} size={30} color={c.onSecondaryContainer} />
         <AppText variant="headlineMd" color="onSecondaryContainer" style={styles.flex}>
-          {done ? 'Görev Tamam! 🎉' : 'Kurtarma Operasyonu!'}
+          {done ? quest.doneTitle : quest.title}
         </AppText>
       </View>
       <AppText variant="bodySm" color="onSecondaryContainer">
-        {target === 0
-          ? 'Bugün bozulmak üzere olan malzeme yok, harika gidiyorsun!'
-          : done
-            ? `${target} malzemeyi israftan kurtardın. Şimdi pişirme zamanı!`
-            : `Son kullanma tarihi yaklaşan ${target} malzemeyi tencereye at, israfı önle.`}
+        {done ? quest.doneDescription : quest.description}
       </AppText>
 
       <View style={styles.progressLabel}>
         <AppText variant="labelMd" color="onSecondaryContainer">
-          İlerleme ({Math.min(rescued, target)}/{target} Malzeme)
+          İlerleme ({Math.min(current, target)}/{target} {quest.unit})
         </AppText>
         <AppText variant="labelMd" color="onSecondaryContainer">
-          %{Math.round(progress * 100)}
+          %{percent}
         </AppText>
       </View>
       <View
         style={[styles.track, { backgroundColor: c.card }]}
         accessibilityRole="progressbar"
-        accessibilityValue={{ min: 0, max: 100, now: Math.round(progress * 100) }}>
-        <View style={[styles.fill, { backgroundColor: c.primary, width: `${progress * 100}%` }]} />
+        accessibilityValue={{ min: 0, max: 100, now: percent }}>
+        <View style={[styles.fill, { backgroundColor: c.primary, width: `${percent}%` }]} />
       </View>
     </View>
   );

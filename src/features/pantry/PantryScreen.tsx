@@ -6,24 +6,27 @@ import { ScrollView, StyleSheet, useWindowDimensions, View, type ScrollView as S
 import { AppText } from '@/components/AppText';
 import { Screen } from '@/components/Screen';
 import { Chip } from '@/components/ui/Chip';
+import { FormError } from '@/components/ui/FormError';
+import { GameButton } from '@/components/ui/GameButton';
+import { HintCard, LoadState } from '@/components/ui/HintCard';
 import { Tag } from '@/components/ui/Tag';
-import { MOCK_RECIPES } from '@/features/recipes/mockRecipes';
+import { useMyRecipes } from '@/features/recipes/useMyRecipes';
 import { useIsWide } from '@/hooks/useIsWide';
 import { useKukkiTheme } from '@/theme/ThemeProvider';
 import { SPACING } from '@/theme/tokens';
 
+import { CATEGORIES } from './categories';
 import { DailyQuestCard } from './components/DailyQuestCard';
 import { MagicPotCard } from './components/MagicPotCard';
 import { PantryHero } from './components/PantryHero';
 import { PantryItemCard } from './components/PantryItemCard';
 import { RecipeSuggestionCard } from './components/RecipeSuggestionCard';
-import { CATEGORIES, inDays, MOCK_PANTRY } from './mockPantry';
-import { daysLeft, freshnessScore, rankRecipes } from './pantryUtils';
-import type { PantryCategory, PantryItem } from './types';
+import { freshnessScore, rankRecipes } from './pantryUtils';
+import { pantryQuest } from './pantryQuest';
+import type { PantryCategory } from './types';
+import { usePantry } from './usePantry';
 
-const QUEST_XP = 50;
 const SUGGESTION_COUNT = 2;
-const NEW_ITEM_SHELF_DAYS = 7;
 
 type CategoryFilter = PantryCategory | 'all';
 
@@ -40,15 +43,15 @@ export function PantryScreen() {
   const scrollRef = useRef<ScrollViewType>(null);
   const suggestionsY = useRef(0);
 
-  const [items, setItems] = useState<PantryItem[]>(MOCK_PANTRY);
+  const pantry = usePantry();
+  const { recipes } = useMyRecipes();
+  const { items } = pantry;
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [category, setCategory] = useState<CategoryFilter>('all');
 
   const selected = items.filter((item) => selectedIds.includes(item.id));
   const visible = category === 'all' ? items : items.filter((item) => item.category === category);
-  const expiring = items.filter((item) => daysLeft(item.expiresOn) <= 1);
-  const rescued = expiring.filter((item) => selectedIds.includes(item.id)).length;
-  const suggestions = rankRecipes(MOCK_RECIPES, items, selected).slice(0, SUGGESTION_COUNT);
+  const suggestions = rankRecipes(recipes, items, selected).slice(0, SUGGESTION_COUNT);
   const usedCategories = (Object.keys(CATEGORIES) as PantryCategory[]).filter((cat) =>
     items.some((item) => item.category === cat),
   );
@@ -56,19 +59,6 @@ export function PantryScreen() {
 
   const toggle = (id: string) =>
     setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
-
-  const addItem = (name: string) =>
-    setItems((prev) => [
-      {
-        id: `local-${Date.now()}`,
-        name,
-        emoji: CATEGORIES.diger.emoji,
-        category: 'diger',
-        quantity: '1 adet',
-        expiresOn: inDays(NEW_ITEM_SHELF_DAYS),
-      },
-      ...prev,
-    ]);
 
   const showSuggestions = () => {
     // Geniş ekranda öneriler zaten tencerenin altında görünüyor
@@ -78,38 +68,74 @@ export function PantryScreen() {
   // ponytail: tarif detay sayfası gelene kadar Tarifler sekmesine gider
   const openRecipe = () => router.push('/tarifler');
 
+  const shelfBody =
+    pantry.status !== 'ready' ? (
+      <LoadState status={pantry.status} onRetry={pantry.reload} />
+    ) : items.length === 0 ? (
+      <HintCard
+        emoji="🧺"
+        title="Kilerin bomboş!"
+        text="Yukarıdaki kutuya dolabındaki ilk malzemeyi yaz. Kategorisini ve ne kadar dayanacağını seçersen, bozulmadan önce seni uyarırız."
+      />
+    ) : (
+      <>
+        <AppText variant="bodySm" color="textMuted">
+          {"💡 Malzemeye dokununca Sihirli Tencere'ye eklenir; 🗑️ ile kilerden kaldırırsın."}
+        </AppText>
+        <View style={styles.grid}>
+          {visible.map((item) => (
+            <View key={item.id} style={[styles.cell, { width: `${100 / columns}%` }]}>
+              <PantryItemCard
+                item={item}
+                selected={selectedIds.includes(item.id)}
+                onToggle={toggle}
+                onRemove={pantry.remove}
+              />
+            </View>
+          ))}
+        </View>
+      </>
+    );
+
   const shelf = (
     <View style={styles.section}>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
-        <Chip label={`Hepsi (${items.length})`} selected={category === 'all'} onPress={() => setCategory('all')} />
-        {usedCategories.map((cat) => (
-          <Chip
-            key={cat}
-            label={`${CATEGORIES[cat].emoji} ${CATEGORIES[cat].label} (${items.filter((i) => i.category === cat).length})`}
-            selected={category === cat}
-            onPress={() => setCategory(cat)}
-          />
-        ))}
-      </ScrollView>
+      {items.length > 0 && (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
+          <Chip label={`Hepsi (${items.length})`} selected={category === 'all'} onPress={() => setCategory('all')} />
+          {usedCategories.map((cat) => (
+            <Chip
+              key={cat}
+              label={`${CATEGORIES[cat].emoji} ${CATEGORIES[cat].label} (${items.filter((i) => i.category === cat).length})`}
+              selected={category === cat}
+              onPress={() => setCategory(cat)}
+            />
+          ))}
+        </ScrollView>
+      )}
 
       <View style={styles.shelfHeader}>
         <MaterialIcons name="kitchen" size={24} color={theme.colors.primary} />
         <AppText variant={isWide ? 'headlineLg' : 'headlineLgMobile'}>Kiler Rafım</AppText>
-        <Tag label={`${selected.length} Seçili`} />
+        {items.length > 0 && <Tag label={`${selected.length} Seçili`} />}
       </View>
-      <AppText variant="bodySm" color="textMuted">
-        Tencereye eklemek için malzemeye dokun.
-      </AppText>
-
-      <View style={styles.grid}>
-        {visible.map((item) => (
-          <View key={item.id} style={[styles.cell, { width: `${100 / columns}%` }]}>
-            <PantryItemCard item={item} selected={selectedIds.includes(item.id)} onToggle={toggle} />
-          </View>
-        ))}
-      </View>
+      {pantry.actionError && <FormError text={pantry.actionError} />}
+      {shelfBody}
     </View>
   );
+
+  const suggestionsBody =
+    recipes.length === 0 ? (
+      <HintCard
+        emoji="📖"
+        title="Öneri için tarif lazım"
+        text="Tarif Defteri'ne tarif ekledikçe, kilerindekilerle en uyumlu olanları burada sıralarız.">
+        <GameButton label="Tarif Defterine Git" icon="menu-book" variant="soft" onPress={() => router.push('/tarifler')} />
+      </HintCard>
+    ) : (
+      suggestions.map((ranked, index) => (
+        <RecipeSuggestionCard key={ranked.recipe.id} ranked={ranked} highlighted={index === 0} onOpen={openRecipe} />
+      ))
+    );
 
   const sidebar = (
     <>
@@ -118,22 +144,15 @@ export function PantryScreen() {
         <AppText variant="labelMd" color="textMuted">
           ANLIK TARİF ÖNERİLERİ
         </AppText>
-        {suggestions.map((ranked, index) => (
-          <RecipeSuggestionCard
-            key={ranked.recipe.id}
-            ranked={ranked}
-            highlighted={index === 0}
-            onOpen={openRecipe}
-          />
-        ))}
+        {suggestionsBody}
       </View>
     </>
   );
 
   const hero = (
-    <PantryHero itemCount={items.length} freshness={freshnessScore(items)} isWide={isWide} onAdd={addItem} />
+    <PantryHero itemCount={items.length} freshness={freshnessScore(items)} isWide={isWide} onAdd={pantry.add} />
   );
-  const quest = <DailyQuestCard target={expiring.length} rescued={rescued} xp={QUEST_XP} />;
+  const quest = <DailyQuestCard quest={pantryQuest(items, selectedIds)} />;
 
   return (
     <Screen ref={scrollRef}>

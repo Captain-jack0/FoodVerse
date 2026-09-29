@@ -6,7 +6,7 @@ import { Tag } from '@/components/ui/Tag';
 import { useKukkiTheme } from '@/theme/ThemeProvider';
 import { RADIUS, SPACING, type ThemeColors } from '@/theme/tokens';
 
-import { CATEGORIES } from '../mockPantry';
+import { CATEGORIES } from '../categories';
 import { daysLeft, expiryLabel, expiryStatus } from '../pantryUtils';
 import type { ExpiryStatus, PantryItem } from '../types';
 
@@ -14,6 +14,7 @@ type PantryItemCardProps = {
   item: PantryItem;
   selected: boolean;
   onToggle: (id: string) => void;
+  onRemove: (id: string) => void;
 };
 
 const STATUS_COLOR: Record<ExpiryStatus, keyof ThemeColors> = {
@@ -23,7 +24,7 @@ const STATUS_COLOR: Record<ExpiryStatus, keyof ThemeColors> = {
   longLasting: 'onSecondaryContainer',
 };
 
-export function PantryItemCard({ item, selected, onToggle }: PantryItemCardProps) {
+export function PantryItemCard({ item, selected, onToggle, onRemove }: PantryItemCardProps) {
   const { theme } = useKukkiTheme();
   const c = theme.colors;
   const days = daysLeft(item.expiresOn);
@@ -64,11 +65,20 @@ export function PantryItemCard({ item, selected, onToggle }: PantryItemCardProps
       <AppText variant="bodySm" color="textMuted" numberOfLines={1}>
         {item.quantity}
       </AppText>
-      <View style={styles.status}>
-        <View style={[styles.statusDot, { backgroundColor: statusColor }]} />
-        <AppText variant="labelSm" style={{ color: statusColor }}>
-          {expiryLabel(days)}
-        </AppText>
+      <View style={styles.bottom}>
+        <View style={styles.status}>
+          <View style={[styles.statusDot, { backgroundColor: statusColor }]} />
+          <AppText variant="labelSm" style={{ color: statusColor }}>
+            {expiryLabel(days)}
+          </AppText>
+        </View>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`${item.name} kilerden kaldır`}
+          onPress={() => onRemove(item.id)}
+          hitSlop={8}>
+          <MaterialIcons name="delete-outline" size={20} color={c.textMuted} />
+        </Pressable>
       </View>
     </Pressable>
   );
@@ -80,6 +90,7 @@ const styles = StyleSheet.create({
   emojiCircle: { width: 52, height: 52, borderRadius: 26, alignItems: 'center', justifyContent: 'center' },
   emoji: { fontSize: 28, lineHeight: 34 },
   check: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  status: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 2 },
+  bottom: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 2 },
+  status: { flexDirection: 'row', alignItems: 'center', gap: 6, flexShrink: 1 },
   statusDot: { width: 8, height: 8, borderRadius: 4 },
 });
