@@ -41,8 +41,8 @@ export function RecipeBookScreen() {
   const stats = bookStats(recipes);
   const columns = gridColumns(width);
 
-  // ponytail: tarif id'si asistana taşınınca sesli adım adım pişirme başlayacak
-  const cook = () => router.push('/asistan');
+  const cook = (id: string) => router.push({ pathname: '/pisir/[id]', params: { id } });
+  const open = (id: string) => router.push({ pathname: '/tarif/[id]', params: { id } });
   const newRecipe = () => router.push('/tarif/yeni');
   const hasRecipes = status === 'ready' && recipes.length > 0;
 
@@ -97,7 +97,7 @@ export function RecipeBookScreen() {
             <View style={styles.grid}>
               {visible.map((recipe) => (
                 <View key={recipe.id} style={[styles.cell, { width: `${100 / columns}%` }]}>
-                  <RecipeCard recipe={recipe} onToggleFavorite={toggleFavorite} onCook={cook} />
+                  <RecipeCard recipe={recipe} onToggleFavorite={toggleFavorite} onCook={cook} onOpen={open} />
                 </View>
               ))}
             </View>

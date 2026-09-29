@@ -65,8 +65,7 @@ export function PantryScreen() {
     if (!isWide) scrollRef.current?.scrollTo({ y: suggestionsY.current, animated: true });
   };
 
-  // ponytail: tarif detay sayfası gelene kadar Tarifler sekmesine gider
-  const openRecipe = () => router.push('/tarifler');
+  const openRecipe = (id: string) => router.push({ pathname: '/tarif/[id]', params: { id } });
 
   const shelfBody =
     pantry.status !== 'ready' ? (
@@ -133,7 +132,7 @@ export function PantryScreen() {
       </HintCard>
     ) : (
       suggestions.map((ranked, index) => (
-        <RecipeSuggestionCard key={ranked.recipe.id} ranked={ranked} highlighted={index === 0} onOpen={openRecipe} />
+        <RecipeSuggestionCard key={ranked.recipe.id} ranked={ranked} highlighted={index === 0} onOpen={() => openRecipe(ranked.recipe.id)} />
       ))
     );
 

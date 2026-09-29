@@ -39,3 +39,34 @@ export async function insertRecipe(payload: ReturnType<typeof toRecipeInsert>): 
   if (error) throw error;
   return data.id as string;
 }
+
+export type RecipeDetail = { recipe: Recipe; authorId: string };
+
+/** Tek tarif (RLS: kendi tarifin ya da herkese açık tarif) */
+export async function fetchRecipe(id: string): Promise<RecipeDetail | null> {
+  const [recipe, favorite, cooks] = await Promise.all([
+    supabase.from('recipes').select(`${RECIPE_COLUMNS}, author_id`).eq('id', id).maybeSingle(),
+    supabase.from('favorites').select('recipe_id').eq('recipe_id', id).maybeSingle(),
+    supabase.from('cook_logs').select('id', { count: 'exact', head: true }).eq('recipe_id', id),
+  ]);
+  if (recipe.error) throw recipe.error;
+  if (favorite.error) throw favorite.error;
+  if (cooks.error) throw cooks.error;
+  if (!recipe.data) return null;
+
+  const row = recipe.data as RecipeRow & { author_id: string };
+  return {
+    recipe: toRecipe(row, { favorite: favorite.data !== null, cookedCount: cooks.count ?? 0 }),
+    authorId: row.author_id,
+  };
+}
+
+export async function logCook(recipeId: string): Promise<void> {
+  const { error } = await supabase.from('cook_logs').insert({ recipe_id: recipeId });
+  if (error) throw error;
+}
+
+export async function deleteRecipe(id: string): Promise<void> {
+  const { error } = await supabase.from('recipes').delete().eq('id', id);
+  if (error) throw error;
+}

@@ -1,5 +1,4 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import type { ComponentProps } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
@@ -8,34 +7,28 @@ import { Tag } from '@/components/ui/Tag';
 import { useKukkiTheme } from '@/theme/ThemeProvider';
 import { RADIUS, SPACING } from '@/theme/tokens';
 
-import { RECIPE_TAGS } from '../recipeTags';
-import type { Difficulty, Recipe, RecipeSource } from '../types';
-
-type IconName = ComponentProps<typeof MaterialIcons>['name'];
-
-const DIFFICULTY_LABEL: Record<Difficulty, string> = { 1: 'Kolay', 2: 'Orta', 3: 'Usta' };
-
-const SOURCE_INFO: Record<RecipeSource['type'], { label: string; icon: IconName }> = {
-  instagram: { label: "Instagram'dan aktarıldı", icon: 'photo-camera' },
-  tiktok: { label: "TikTok'tan aktarıldı", icon: 'music-note' },
-  family: { label: 'Aile Defteri', icon: 'family-restroom' },
-  manual: { label: 'Kendi Tarifim', icon: 'edit-note' },
-};
+import { DIFFICULTY_LABEL, RECIPE_TAGS, SOURCE_INFO } from '../recipeTags';
+import type { Recipe } from '../types';
 
 type RecipeCardProps = {
   recipe: Recipe;
   onToggleFavorite: (id: string) => void;
   onCook: (id: string) => void;
+  onOpen: (id: string) => void;
 };
 
-export function RecipeCard({ recipe, onToggleFavorite, onCook }: RecipeCardProps) {
+export function RecipeCard({ recipe, onToggleFavorite, onCook, onOpen }: RecipeCardProps) {
   const { theme } = useKukkiTheme();
   const c = theme.colors;
   const firstTag = recipe.tags[0];
   const source = SOURCE_INFO[recipe.source.type];
 
   return (
-    <View style={[styles.card, { backgroundColor: c.card }]}>
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`${recipe.title} tarifini aç`}
+      onPress={() => onOpen(recipe.id)}
+      style={({ pressed }) => [styles.card, { backgroundColor: c.card, transform: [{ translateY: pressed ? 2 : 0 }] }]}>
       <View style={[styles.cover, { backgroundColor: c.surfaceHigh }]}>
         <AppText style={styles.coverEmoji}>{recipe.emoji}</AppText>
         {firstTag && (
@@ -106,7 +99,7 @@ export function RecipeCard({ recipe, onToggleFavorite, onCook }: RecipeCardProps
           <GameButton label="Pişirmeye Başla" icon="play-circle" variant="soft" onPress={() => onCook(recipe.id)} style={styles.cookButton} />
         </View>
       </View>
-    </View>
+    </Pressable>
   );
 }
 
