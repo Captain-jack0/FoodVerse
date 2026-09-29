@@ -1,7 +1,7 @@
-import 'expo-sqlite/localStorage/install';
-
 import { createClient } from '@supabase/supabase-js';
 import { AppState, Platform } from 'react-native';
+
+import { authStorage } from './authStorage';
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
@@ -12,12 +12,9 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
-// Web'de sunucu tarafı (statik) render sırasında localStorage yoktur
-const storage = typeof localStorage === 'undefined' ? undefined : localStorage;
-
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    storage,
+    storage: authStorage,
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: Platform.OS === 'web',

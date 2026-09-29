@@ -1,22 +1,10 @@
-import { Stack } from 'expo-router';
-
+import { StackHeader } from '@/components/navigation/StackHeader';
 import { PlaceholderScreen } from '@/components/PlaceholderScreen';
-import { useKukkiTheme } from '@/theme/ThemeProvider';
-import { FONT } from '@/theme/tokens';
 
 export default function NewRecipeScreen() {
-  const { theme } = useKukkiTheme();
   return (
     <>
-      <Stack.Screen
-        options={{
-          headerShown: true,
-          title: 'Yeni Tarif',
-          headerStyle: { backgroundColor: theme.colors.background },
-          headerTintColor: theme.colors.primary,
-          headerTitleStyle: { fontFamily: FONT.bold, color: theme.colors.text },
-        }}
-      />
+      <StackHeader title="Yeni Tarif" />
       <PlaceholderScreen
         icon="edit-note"
         eyebrow="Manuel Tarif Defteri"
