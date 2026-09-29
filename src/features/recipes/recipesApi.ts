@@ -76,3 +76,14 @@ export async function updateRecipe(id: string, payload: ReturnType<typeof toReci
   const { error } = await supabase.from('recipes').update(payload).eq('id', id);
   if (error) throw error;
 }
+
+/** Son pişirilen tariflerin id'leri (en yeni önce, tekrarsız) */
+export async function fetchRecentlyCookedIds(limit = 5): Promise<string[]> {
+  const { data, error } = await supabase
+    .from('cook_logs')
+    .select('recipe_id')
+    .order('cooked_at', { ascending: false })
+    .limit(30);
+  if (error) throw error;
+  return [...new Set(data.map((row) => row.recipe_id as string))].slice(0, limit);
+}
