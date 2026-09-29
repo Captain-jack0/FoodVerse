@@ -8,7 +8,7 @@ export function Brand({ compact }: { compact: boolean }) {
   return (
     <View style={styles.row}>
       <Image
-        source={require('@/assets/images/logo.png')}
+        source={require('@/assets/images/icon.png')}
         style={compact ? styles.logoSmall : styles.logo}
         accessibilityLabel="Kukki Kitchen logosu"
       />
