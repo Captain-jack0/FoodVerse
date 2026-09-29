@@ -8,6 +8,10 @@ import { Chip } from '@/components/ui/Chip';
 import { FormError } from '@/components/ui/FormError';
 import { GameButton } from '@/components/ui/GameButton';
 import { HintCard, LoadState } from '@/components/ui/HintCard';
+import { CollectionEditorModal } from '@/features/collections/components/CollectionEditorModal';
+import { CollectionShelf } from '@/features/collections/components/CollectionShelf';
+import type { Collection } from '@/features/collections/types';
+import { useCollections } from '@/features/collections/useCollections';
 import { useIsWide } from '@/hooks/useIsWide';
 import { useKukkiTheme } from '@/theme/ThemeProvider';
 import { FONT, RADIUS, SPACING } from '@/theme/tokens';
@@ -36,8 +40,16 @@ export function RecipeBookScreen() {
   const { recipes, status, actionError, reload, toggleFavorite } = useMyRecipes();
   const [filter, setFilter] = useState<RecipeFilter>('all');
   const [query, setQuery] = useState('');
+  const collections = useCollections();
+  const [selectedCollectionId, setSelectedCollectionId] = useState<string | null>(null);
+  // null: kapalı, 'new': yeni koleksiyon, Collection: düzenleme
+  const [editor, setEditor] = useState<'new' | Collection | null>(null);
+  const selectedCollection = collections.collections.find((col) => col.id === selectedCollectionId) ?? null;
 
-  const visible = filterRecipes(recipes, filter, query);
+  // ponytail: koleksiyonda başkasının tarifleri olursa (Keşfet) burada onları da çekmek gerekecek
+  const visible = filterRecipes(recipes, filter, query).filter(
+    (r) => !selectedCollection || selectedCollection.recipeIds.includes(r.id),
+  );
   const stats = bookStats(recipes);
   const columns = gridColumns(width);
 
@@ -61,6 +73,17 @@ export function RecipeBookScreen() {
         </HintCard>
       ) : (
         <>
+          <CollectionShelf
+            collections={collections.collections}
+            totalRecipes={recipes.length}
+            selectedId={selectedCollectionId}
+            onSelect={setSelectedCollectionId}
+            onCreate={() => setEditor('new')}
+            onEdit={setEditor}
+            onQuickCreate={(name, emoji) => collections.create(name, emoji)}
+          />
+          {collections.actionError && <FormError text={collections.actionError} />}
+
           <View style={[styles.toolbar, isWide && styles.toolbarWide]}>
             <View style={[styles.search, { backgroundColor: c.surfaceHigh }, isWide && styles.searchWide]}>
               <MaterialIcons name="search" size={20} color={c.textMuted} />
@@ -92,7 +115,15 @@ export function RecipeBookScreen() {
           {actionError && <FormError text={actionError} />}
 
           {visible.length === 0 ? (
-            <HintCard emoji="🔍" title="Bu rafta tarif yok" text="Başka bir filtre ya da arama dene." />
+            selectedCollection && selectedCollection.recipeIds.length === 0 ? (
+              <HintCard
+                emoji={selectedCollection.emoji}
+                title={`${selectedCollection.name} henüz boş`}
+                text="Bir tarifi açıp 📚 Koleksiyona ekle butonuyla bu koleksiyona ekleyebilirsin."
+              />
+            ) : (
+              <HintCard emoji="🔍" title="Bu rafta tarif yok" text="Başka bir filtre ya da arama dene." />
+            )
           ) : (
             <View style={styles.grid}>
               {visible.map((recipe) => (
@@ -109,6 +140,25 @@ export function RecipeBookScreen() {
             isWide={isWide}
           />
         </>
+      )}
+      {editor && (
+        <CollectionEditorModal
+          editing={editor === 'new' ? undefined : editor}
+          existing={collections.collections}
+          onSave={(name, emoji) =>
+            editor === 'new' ? collections.create(name, emoji) : collections.rename(editor.id, name, emoji)
+          }
+          onDelete={
+            editor === 'new'
+              ? undefined
+              : async () => {
+                  const ok = await collections.remove(editor.id);
+                  if (ok) setSelectedCollectionId(null);
+                  return ok;
+                }
+          }
+          onClose={() => setEditor(null)}
+        />
       )}
     </Screen>
   );
