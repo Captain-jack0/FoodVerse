@@ -13,6 +13,8 @@ import { Tag } from '@/components/ui/Tag';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { matchRecipe } from '@/features/pantry/pantryUtils';
 import { usePantry } from '@/features/pantry/usePantry';
+import { itemsToAdd } from '@/features/shopping/shoppingUtils';
+import { useShoppingList } from '@/features/shopping/useShoppingList';
 import { useIsWide } from '@/hooks/useIsWide';
 import { useKukkiTheme } from '@/theme/ThemeProvider';
 import { RADIUS, SPACING } from '@/theme/tokens';
@@ -31,6 +33,8 @@ export function RecipeDetailScreen() {
   const pantry = usePantry();
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+  const shopping = useShoppingList();
+  const [shoppingNotice, setShoppingNotice] = useState<string | null>(null);
 
   if (status !== 'ready' || !detail) {
     return (
@@ -62,6 +66,17 @@ export function RecipeDetailScreen() {
       setDetail({ ...detail, recipe: { ...recipe, favorite: !next } });
       setActionError('Favori güncellenemedi, tekrar dene.');
     }
+  };
+
+  const addMissingToList = async () => {
+    const missing = recipe.ingredients.filter((ing) => match.missing.includes(ing.name));
+    const toAdd = itemsToAdd(shopping.items, missing);
+    if (toAdd.length === 0) {
+      setShoppingNotice('Eksiklerin hepsi zaten alışveriş listende 👍');
+      return;
+    }
+    const ok = await shopping.add(toAdd.map((ing) => ({ ...ing, recipeId: recipe.id })));
+    if (ok) setShoppingNotice(`🛒 ${toAdd.length} malzeme alışveriş listene eklendi.`);
   };
 
   const remove = async () => {
@@ -102,9 +117,24 @@ export function RecipeDetailScreen() {
           </View>
         );
       })}
-      {match.missing.length > 0 && (
-        <AppText variant="bodySm" color="textMuted">
-          🛒 Eksik: {match.missing.join(', ')}
+      {match.missing.length > 0 && pantry.status === 'ready' && (
+        <>
+          <AppText variant="bodySm" color="textMuted">
+            Eksik: {match.missing.join(', ')}
+          </AppText>
+          <GameButton
+            label="Eksikleri Alışveriş Listesine Ekle"
+            icon="add-shopping-cart"
+            variant="soft"
+            onPress={addMissingToList}
+            disabled={shopping.status !== 'ready'}
+          />
+        </>
+      )}
+      {shopping.actionError && <FormError text={shopping.actionError} />}
+      {shoppingNotice && (
+        <AppText variant="bodySm" color="tertiary" accessibilityLiveRegion="polite">
+          {shoppingNotice}
         </AppText>
       )}
     </View>

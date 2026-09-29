@@ -7,18 +7,21 @@ import { Chip } from '@/components/ui/Chip';
 import { useKukkiTheme } from '@/theme/ThemeProvider';
 import { FONT, RADIUS, SPACING } from '@/theme/tokens';
 
-import { CATEGORIES, inDays } from '../categories';
+import { CATEGORIES, guessCategory, inDays } from '../categories';
 import type { NewPantryItem } from '../pantryApi';
 import type { PantryCategory } from '../types';
 
 const MAX_NAME = 60;
 const MAX_QUANTITY = 40;
 
+// CATEGORIES[*].shelfDays değerlerinin hepsi burada olmalı (tahmin seçili görünsün)
 const SHELF_LIFE = [
-  { label: '2 gün', days: 2 },
+  { label: '3 gün', days: 3 },
+  { label: '5 gün', days: 5 },
   { label: '1 hafta', days: 7 },
   { label: '2 hafta', days: 14 },
   { label: '1 ay', days: 30 },
+  { label: '3 ay', days: 90 },
   { label: '6 ay', days: 180 },
 ];
 
@@ -32,8 +35,23 @@ export function AddPantryItemForm({ isWide, onAdd }: AddPantryItemFormProps) {
   const c = theme.colors;
   const [name, setName] = useState('');
   const [quantity, setQuantity] = useState('');
-  const [category, setCategory] = useState<PantryCategory>('sebze');
-  const [shelfDays, setShelfDays] = useState(7);
+  const [category, setCategory] = useState<PantryCategory>('diger');
+  const [shelfDays, setShelfDays] = useState(CATEGORIES.diger.shelfDays);
+  // Kullanıcı elle seçene kadar kategori ve süre addan tahmin edilir
+  const [pickedByUser, setPickedByUser] = useState(false);
+
+  const changeName = (value: string) => {
+    setName(value);
+    if (pickedByUser) return;
+    const guess = guessCategory(value);
+    setCategory(guess);
+    setShelfDays(CATEGORIES[guess].shelfDays);
+  };
+
+  const pickCategory = (value: PantryCategory) => {
+    setPickedByUser(true);
+    setCategory(value);
+  };
   const [saving, setSaving] = useState(false);
   const trimmed = name.trim();
 
@@ -51,6 +69,7 @@ export function AddPantryItemForm({ isWide, onAdd }: AddPantryItemFormProps) {
     if (ok) {
       setName('');
       setQuantity('');
+      setPickedByUser(false);
     }
   };
 
@@ -60,7 +79,7 @@ export function AddPantryItemForm({ isWide, onAdd }: AddPantryItemFormProps) {
         <MaterialIcons name="add-shopping-cart" size={22} color={c.textMuted} />
         <TextInput
           value={name}
-          onChangeText={setName}
+          onChangeText={changeName}
           onSubmitEditing={submit}
           maxLength={MAX_NAME}
           placeholder={isWide ? 'Yeni malzeme adı yaz (örn: Çedar Peyniri, Fesleğen)...' : 'Yeni malzeme ekle...'}
@@ -93,7 +112,7 @@ export function AddPantryItemForm({ isWide, onAdd }: AddPantryItemFormProps) {
                 key={cat}
                 label={`${CATEGORIES[cat].emoji} ${CATEGORIES[cat].label}`}
                 selected={category === cat}
-                onPress={() => setCategory(cat)}
+                onPress={() => pickCategory(cat)}
               />
             ))}
           </ScrollView>
@@ -103,7 +122,15 @@ export function AddPantryItemForm({ isWide, onAdd }: AddPantryItemFormProps) {
           </AppText>
           <View style={styles.chipsWrap}>
             {SHELF_LIFE.map((opt) => (
-              <Chip key={opt.days} label={opt.label} selected={shelfDays === opt.days} onPress={() => setShelfDays(opt.days)} />
+              <Chip
+                key={opt.days}
+                label={opt.label}
+                selected={shelfDays === opt.days}
+                onPress={() => {
+                  setPickedByUser(true);
+                  setShelfDays(opt.days);
+                }}
+              />
             ))}
           </View>
 
