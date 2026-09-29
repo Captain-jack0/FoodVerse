@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase';
 
+import type { toRecipeInsert } from './recipeDraft';
 import { RECIPE_COLUMNS, toRecipe, type RecipeRow } from './recipeMapper';
 import type { Recipe } from './types';
 
@@ -31,4 +32,10 @@ export async function setFavorite(recipeId: string, favorite: boolean): Promise<
     ? await supabase.from('favorites').insert({ recipe_id: recipeId })
     : await supabase.from('favorites').delete().eq('recipe_id', recipeId);
   if (error) throw error;
+}
+
+export async function insertRecipe(payload: ReturnType<typeof toRecipeInsert>): Promise<string> {
+  const { data, error } = await supabase.from('recipes').insert(payload).select('id').single();
+  if (error) throw error;
+  return data.id as string;
 }

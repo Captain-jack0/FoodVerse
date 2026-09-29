@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useFocusEffect } from 'expo-router';
+import { useCallback, useState } from 'react';
 
 import { useAuth } from '@/features/auth/AuthProvider';
 import type { LoadStatus } from '@/lib/loadStatus';
@@ -27,9 +28,8 @@ export function useMyRecipes() {
     );
   }, [userId]);
 
-  useEffect(() => {
-    load();
-  }, [load]);
+  // Ekran her odaklandığında tazele (örn. yeni tarif kaydedip geri dönünce)
+  useFocusEffect(load);
 
   const reload = () => {
     setStatus('loading');

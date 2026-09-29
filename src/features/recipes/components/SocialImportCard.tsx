@@ -1,5 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
@@ -37,11 +38,12 @@ export function SocialImportCard({ isWide }: { isWide: boolean }) {
       setFeedback({ kind: 'error', text: 'Şimdilik sadece Instagram veya TikTok linki (https://...) alabiliyorum.' });
       return;
     }
-    // ponytail: yapay zeka ile ayıklama Supabase + AI servisi bağlanınca eklenecek
+    // ponytail: yapay zeka ile otomatik ayıklama gelene kadar link forma kaynak olarak taşınır
     setFeedback({
       kind: 'success',
-      text: `${PLATFORM_NAME[platform]} linki alındı! 🎉 Otomatik ayıklama, yapay zeka servisi bağlandığında açılacak.`,
+      text: `${PLATFORM_NAME[platform]} linki alındı! 🎉 Malzemeleri ve adımları yaz, linki kaynağa ekledik.`,
     });
+    router.push({ pathname: '/tarif/yeni', params: { url: url.trim() } });
     setUrl('');
   };
 
