@@ -11,14 +11,4 @@ export type PantryItem = {
   expiresOn: string;
 };
 
-export type RecipeSuggestion = {
-  id: string;
-  title: string;
-  emoji: string;
-  description: string;
-  minutes: number;
-  /** Kilerdeki malzeme adlarıyla eşleştirilir (küçük harf, Türkçe) */
-  ingredients: string[];
-};
-
 export type ExpiryStatus = 'danger' | 'warning' | 'ok' | 'longLasting';

@@ -1,4 +1,4 @@
-import type { PantryCategory, PantryItem, RecipeSuggestion } from './types';
+import type { PantryCategory, PantryItem } from './types';
 
 export const CATEGORIES: Record<PantryCategory, { label: string; emoji: string }> = {
   sebze: { label: 'Sebzeler', emoji: '🥕' },
@@ -30,37 +30,3 @@ export const MOCK_PANTRY: PantryItem[] = [
   { id: 'p10', name: 'Tereyağı', emoji: '🧈', category: 'sut', quantity: '250 gr', expiresOn: inDays(20) },
 ];
 
-export const MOCK_RECIPES: RecipeSuggestion[] = [
-  {
-    id: 'r1',
-    title: 'Kremalı Mantarlı Penne',
-    emoji: '🍝',
-    description: 'Dolabındaki krema ve mantarları değerlendirmek için harika bir gün!',
-    minutes: 20,
-    ingredients: ['mantar', 'krema', 'penne', 'sarımsak'],
-  },
-  {
-    id: 'r2',
-    title: 'Fırında Baharatlı Sebze',
-    emoji: '🥘',
-    description: 'Kabak ve domatesleri fırında karamelize lezzete dönüştür.',
-    minutes: 35,
-    ingredients: ['kabak', 'domates', 'fesleğen', 'zeytinyağı'],
-  },
-  {
-    id: 'r3',
-    title: 'Mercimek Çorbası',
-    emoji: '🍲',
-    description: 'Tereyağlı, limonlu klasik; soğuk günlerin kurtarıcısı.',
-    minutes: 30,
-    ingredients: ['mercimek', 'tereyağı', 'soğan', 'havuç'],
-  },
-  {
-    id: 'r4',
-    title: 'Kaşarlı Tavuk Sote',
-    emoji: '🍳',
-    description: 'Yarın son günü olan domatesle tek tavada pratik akşam yemeği.',
-    minutes: 25,
-    ingredients: ['tavuk', 'domates', 'kaşar', 'biber'],
-  },
-];

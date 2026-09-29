@@ -7,6 +7,7 @@ import { AppText } from '@/components/AppText';
 import { Screen } from '@/components/Screen';
 import { Chip } from '@/components/ui/Chip';
 import { Tag } from '@/components/ui/Tag';
+import { MOCK_RECIPES } from '@/features/recipes/mockRecipes';
 import { useIsWide } from '@/hooks/useIsWide';
 import { useKukkiTheme } from '@/theme/ThemeProvider';
 import { SPACING } from '@/theme/tokens';
@@ -16,7 +17,7 @@ import { MagicPotCard } from './components/MagicPotCard';
 import { PantryHero } from './components/PantryHero';
 import { PantryItemCard } from './components/PantryItemCard';
 import { RecipeSuggestionCard } from './components/RecipeSuggestionCard';
-import { CATEGORIES, inDays, MOCK_PANTRY, MOCK_RECIPES } from './mockPantry';
+import { CATEGORIES, inDays, MOCK_PANTRY } from './mockPantry';
 import { daysLeft, freshnessScore, rankRecipes } from './pantryUtils';
 import type { PantryCategory, PantryItem } from './types';
 

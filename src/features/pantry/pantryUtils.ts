@@ -1,4 +1,6 @@
-import type { ExpiryStatus, PantryItem, RecipeSuggestion } from './types';
+import type { Recipe } from '@/features/recipes/types';
+
+import type { ExpiryStatus, PantryItem } from './types';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -42,18 +44,19 @@ function hasIngredient(ingredient: string, items: PantryItem[]): boolean {
 
 export type RecipeMatch = { have: string[]; missing: string[]; percent: number };
 
-export function matchRecipe(recipe: RecipeSuggestion, pantry: PantryItem[]): RecipeMatch {
-  const have = recipe.ingredients.filter((ing) => hasIngredient(ing, pantry));
-  const missing = recipe.ingredients.filter((ing) => !hasIngredient(ing, pantry));
+export function matchRecipe(recipe: Recipe, pantry: PantryItem[]): RecipeMatch {
+  const names = recipe.ingredients.map((ing) => ing.name);
+  const have = names.filter((name) => hasIngredient(name, pantry));
+  const missing = names.filter((name) => !hasIngredient(name, pantry));
   const percent = recipe.ingredients.length === 0 ? 0 : Math.round((have.length / recipe.ingredients.length) * 100);
   return { have, missing, percent };
 }
 
-export type RankedRecipe = { recipe: RecipeSuggestion; match: RecipeMatch; usesSelected: number };
+export type RankedRecipe = { recipe: Recipe; match: RecipeMatch; usesSelected: number };
 
 /** Önce seçili malzemeleri en çok kullanan, sonra eşleşme yüzdesi en yüksek tarif */
 export function rankRecipes(
-  recipes: RecipeSuggestion[],
+  recipes: Recipe[],
   pantry: PantryItem[],
   selected: PantryItem[],
 ): RankedRecipe[] {
@@ -61,7 +64,7 @@ export function rankRecipes(
     .map((recipe) => ({
       recipe,
       match: matchRecipe(recipe, pantry),
-      usesSelected: recipe.ingredients.filter((ing) => hasIngredient(ing, selected)).length,
+      usesSelected: recipe.ingredients.filter((ing) => hasIngredient(ing.name, selected)).length,
     }))
     .sort((a, b) => b.usesSelected - a.usesSelected || b.match.percent - a.match.percent);
 }

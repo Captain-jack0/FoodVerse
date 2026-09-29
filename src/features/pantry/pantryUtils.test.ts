@@ -1,6 +1,8 @@
 /// <reference types="jest" />
 
-import type { PantryItem, RecipeSuggestion } from './types';
+import type { Recipe } from '@/features/recipes/types';
+
+import type { PantryItem } from './types';
 import {
   daysLeft,
   expiryLabel,
@@ -60,22 +62,22 @@ describe('freshnessScore', () => {
 
 describe('matchRecipe / rankRecipes', () => {
   const pantry = [item('Kültür Mantarı', '2026-10-03'), item('Yemek Kreması', '2026-09-30'), item('Penne Makarna', '2027-03-01')];
-  const penne: RecipeSuggestion = {
-    id: 'penne',
-    title: 'Kremalı Mantarlı Penne',
-    emoji: '🍝',
+  const recipe = (id: string, names: string[]): Recipe => ({
+    id,
+    title: id,
+    emoji: '🍽️',
     description: '',
     minutes: 20,
-    ingredients: ['mantar', 'krema', 'penne', 'sarımsak'],
-  };
-  const sebze: RecipeSuggestion = {
-    id: 'sebze',
-    title: 'Fırında Sebze',
-    emoji: '🥘',
-    description: '',
-    minutes: 35,
-    ingredients: ['kabak', 'domates', 'zeytinyağı'],
-  };
+    difficulty: 1,
+    tags: [],
+    source: { type: 'manual' },
+    cookedCount: 0,
+    favorite: false,
+    ingredients: names.map((name) => ({ name, amount: '1' })),
+    steps: [],
+  });
+  const penne = recipe('penne', ['mantar', 'krema', 'penne', 'sarımsak']);
+  const sebze = recipe('sebze', ['kabak', 'domates', 'zeytinyağı']);
 
   it('kısmi ve Türkçe büyük/küçük harf duyarsız eşleşir', () => {
     const match = matchRecipe(penne, pantry);
