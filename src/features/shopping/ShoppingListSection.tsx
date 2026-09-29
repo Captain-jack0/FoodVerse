@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
-import { Screen } from '@/components/Screen';
 import { FormError } from '@/components/ui/FormError';
 import { GameButton } from '@/components/ui/GameButton';
 import { HintCard, LoadState } from '@/components/ui/HintCard';
@@ -13,16 +12,17 @@ import { useKukkiTheme } from '@/theme/ThemeProvider';
 import { FONT, RADIUS, SPACING } from '@/theme/tokens';
 
 import { ShoppingItemRow } from './components/ShoppingItemRow';
-import { useShoppingList } from './useShoppingList';
+import type { useShoppingList } from './useShoppingList';
 
 const MAX_NAME = 60;
 const MAX_AMOUNT = 40;
 
-export function ShoppingListScreen() {
+type ShoppingListSectionProps = { list: ReturnType<typeof useShoppingList> };
+
+export function ShoppingListSection({ list }: ShoppingListSectionProps) {
   const { theme } = useKukkiTheme();
   const c = theme.colors;
   const isWide = useIsWide();
-  const list = useShoppingList();
   const [name, setName] = useState('');
   const [amount, setAmount] = useState('');
   const [moving, setMoving] = useState(false);
@@ -52,7 +52,7 @@ export function ShoppingListScreen() {
   const inputStyle = [styles.input, { backgroundColor: c.card, color: c.text }];
 
   return (
-    <Screen>
+    <View style={styles.section}>
       <View style={[styles.hero, { backgroundColor: c.surfaceLow }]}>
         <View style={styles.heroTop}>
           <View style={styles.flex}>
@@ -154,13 +154,7 @@ export function ShoppingListScreen() {
           )}
         </View>
       )}
-
-      <HintCard
-        emoji="📅"
-        title="Haftalık Planlayıcı yakında"
-        text="Günlere tarif atayacak, haftanın eksiklerini tek seferde bu listeye ekleyeceksin."
-      />
-    </Screen>
+    </View>
   );
 }
 

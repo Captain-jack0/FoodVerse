@@ -1,4 +1,3 @@
-import { ShoppingListScreen } from '@/features/shopping/ShoppingListScreen';
+import { PlannerScreen } from '@/features/planner/PlannerScreen';
 
-// ponytail: haftalık planlayıcı gelene kadar sekmenin ana içeriği alışveriş listesi
-export default ShoppingListScreen;
+export default PlannerScreen;
