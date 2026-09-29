@@ -1,5 +1,5 @@
 import { parseSocialUrl } from './recipeUtils';
-import type { Difficulty, Ingredient, RecipeTag } from './types';
+import type { Difficulty, Ingredient, Recipe, RecipeTag } from './types';
 
 /** Veritabanı kısıtlarıyla (0001_init.sql) aynı sınırlar */
 export const LIMITS = {
@@ -44,6 +44,25 @@ export function emptyDraft(sourceUrl = ''): RecipeDraft {
     ingredients: [{ name: '', amount: '' }],
     steps: [''],
     isPublic: false,
+  };
+}
+
+/** Düzenleme için mevcut tarifi form taslağına çevirir */
+export function draftFromRecipe(recipe: Recipe, isPublic: boolean): RecipeDraft {
+  const { source } = recipe;
+  return {
+    title: recipe.title,
+    emoji: recipe.emoji,
+    description: recipe.description,
+    minutes: String(recipe.minutes),
+    difficulty: recipe.difficulty,
+    tags: recipe.tags,
+    sourceType: source.type === 'family' ? 'family' : 'manual',
+    sourceUrl: source.type === 'instagram' || source.type === 'tiktok' ? source.url : '',
+    tip: recipe.tip ?? '',
+    ingredients: recipe.ingredients.length > 0 ? recipe.ingredients : [{ name: '', amount: '' }],
+    steps: recipe.steps.length > 0 ? recipe.steps : [''],
+    isPublic,
   };
 }
 

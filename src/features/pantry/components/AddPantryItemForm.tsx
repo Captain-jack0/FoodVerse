@@ -7,23 +7,12 @@ import { Chip } from '@/components/ui/Chip';
 import { useKukkiTheme } from '@/theme/ThemeProvider';
 import { FONT, RADIUS, SPACING } from '@/theme/tokens';
 
-import { CATEGORIES, guessCategory, inDays } from '../categories';
+import { CATEGORIES, guessCategory, inDays, SHELF_LIFE } from '../categories';
 import type { NewPantryItem } from '../pantryApi';
 import type { PantryCategory } from '../types';
 
 const MAX_NAME = 60;
 const MAX_QUANTITY = 40;
-
-// CATEGORIES[*].shelfDays değerlerinin hepsi burada olmalı (tahmin seçili görünsün)
-const SHELF_LIFE = [
-  { label: '3 gün', days: 3 },
-  { label: '5 gün', days: 5 },
-  { label: '1 hafta', days: 7 },
-  { label: '2 hafta', days: 14 },
-  { label: '1 ay', days: 30 },
-  { label: '3 ay', days: 90 },
-  { label: '6 ay', days: 180 },
-];
 
 type AddPantryItemFormProps = {
   isWide: boolean;

@@ -230,6 +230,15 @@ export function RecipeDetailScreen() {
           </>
         )}
 
+        {isMine && (
+          <GameButton
+            label="Tarifi Düzenle"
+            icon="edit"
+            variant="soft"
+            onPress={() => router.push({ pathname: '/duzenle/[id]', params: { id: recipe.id } })}
+          />
+        )}
+
         {isMine &&
           (confirmDelete ? (
             <View style={[styles.card, { backgroundColor: c.card }]}>

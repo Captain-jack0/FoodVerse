@@ -1,6 +1,7 @@
 /// <reference types="jest" />
 
-import { emptyDraft, toRecipeInsert, validateDraft, type RecipeDraft } from './recipeDraft';
+import { draftFromRecipe, emptyDraft, toRecipeInsert, validateDraft, type RecipeDraft } from './recipeDraft';
+import type { Recipe } from './types';
 
 const valid: RecipeDraft = {
   ...emptyDraft(),
@@ -55,6 +56,51 @@ describe('toRecipeInsert', () => {
       source_type: 'family',
       source_url: null,
       visibility: 'private',
+    });
+  });
+});
+
+describe('draftFromRecipe', () => {
+  const recipe: Recipe = {
+    id: 'r1',
+    title: 'Pankek',
+    emoji: '🥞',
+    description: 'Yumuşacık',
+    minutes: 20,
+    difficulty: 2,
+    tags: ['tatli'],
+    source: { type: 'instagram', url: 'https://www.instagram.com/reel/x/' },
+    tip: 'Kısık ateş',
+    cookedCount: 4,
+    favorite: true,
+    ingredients: [{ name: 'yumurta', amount: '2' }],
+    steps: ['Çırp.', 'Pişir.'],
+  };
+
+  it('tarifi forma doldurur; forma yazılıp kaydedilince aynı veri çıkar', () => {
+    const draft = draftFromRecipe(recipe, true);
+    expect(draft).toMatchObject({ minutes: '20', sourceUrl: 'https://www.instagram.com/reel/x/', isPublic: true, tip: 'Kısık ateş' });
+    expect(validateDraft(draft)).toEqual({});
+    expect(toRecipeInsert(draft)).toMatchObject({
+      title: 'Pankek',
+      minutes: 20,
+      difficulty: 2,
+      tags: ['tatli'],
+      source_type: 'instagram',
+      source_url: 'https://www.instagram.com/reel/x/',
+      tip: 'Kısık ateş',
+      ingredients: [{ name: 'yumurta', amount: '2' }],
+      steps: ['Çırp.', 'Pişir.'],
+      visibility: 'public',
+    });
+  });
+
+  it('aile tarifinde kaynak tipi korunur', () => {
+    expect(draftFromRecipe({ ...recipe, source: { type: 'family' }, tip: undefined }, false)).toMatchObject({
+      sourceType: 'family',
+      sourceUrl: '',
+      tip: '',
+      isPublic: false,
     });
   });
 });

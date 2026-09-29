@@ -9,6 +9,17 @@ export const CATEGORIES: Record<PantryCategory, { label: string; emoji: string; 
   diger: { label: 'Diğer', emoji: '🥫', shelfDays: 14 },
 };
 
+// CATEGORIES[*].shelfDays değerlerinin hepsi burada olmalı (tahmin seçili görünsün)
+export const SHELF_LIFE = [
+  { label: '3 gün', days: 3 },
+  { label: '5 gün', days: 5 },
+  { label: '1 hafta', days: 7 },
+  { label: '2 hafta', days: 14 },
+  { label: '1 ay', days: 30 },
+  { label: '3 ay', days: 90 },
+  { label: '6 ay', days: 180 },
+];
+
 /** Bugünden n gün sonrası, YYYY-MM-DD */
 export function inDays(n: number, from: Date = new Date()): string {
   const d = new Date(from.getFullYear(), from.getMonth(), from.getDate() + n);

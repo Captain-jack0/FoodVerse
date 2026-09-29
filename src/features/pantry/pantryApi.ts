@@ -50,3 +50,20 @@ export async function deletePantryItem(id: string): Promise<void> {
   const { error } = await supabase.from('pantry_items').delete().eq('id', id);
   if (error) throw error;
 }
+
+export async function updatePantryItem(id: string, item: NewPantryItem): Promise<PantryItem> {
+  const { data, error } = await supabase
+    .from('pantry_items')
+    .update({
+      name: item.name,
+      emoji: item.emoji,
+      category: item.category,
+      quantity: item.quantity,
+      expires_on: item.expiresOn,
+    })
+    .eq('id', id)
+    .select(COLUMNS)
+    .single();
+  if (error) throw error;
+  return toPantryItem(data as PantryRow);
+}
