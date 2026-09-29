@@ -60,7 +60,12 @@ $$;
 create policy "Görebildiği koleksiyonun içeriğini okur"
   on public.collection_recipes for select to authenticated
   using (
-    exists (select 1 from public.collections c where c.id = collection_id)
+    -- Görünürlük açıkça kontrol edilir (collections RLS'ine güvenmeden)
+    exists (
+      select 1 from public.collections c
+      where c.id = collection_id
+        and (c.visibility = 'public' or c.owner_id = (select auth.uid()))
+    )
     and public.can_view_recipe(recipe_id)
   );
 
