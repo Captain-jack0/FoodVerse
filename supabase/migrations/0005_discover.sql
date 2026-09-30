@@ -16,16 +16,36 @@ create policy "Avatar: kendi klasörüne yükler"
   on storage.objects for insert to authenticated
   with check (bucket_id = 'avatars' and (storage.foldername(name))[1] = (select auth.uid())::text);
 
+create policy "Avatar: kendi dosyasını günceller"
+  on storage.objects for update to authenticated
+  using (bucket_id = 'avatars' and (storage.foldername(name))[1] = (select auth.uid())::text)
+  with check (bucket_id = 'avatars' and (storage.foldername(name))[1] = (select auth.uid())::text);
+
 create policy "Avatar: kendi dosyasını siler"
   on storage.objects for delete to authenticated
   using (bucket_id = 'avatars' and (storage.foldername(name))[1] = (select auth.uid())::text);
 
--- avatar_url sadece bu projenin avatars deposunu gösterebilir (başka sitelere izleme linki konamaz)
-alter table public.profiles
-  add constraint profiles_avatar_url_check check (
-    avatar_url is null
-    or avatar_url ~ '^https://[a-z0-9]+\.supabase\.co/storage/v1/object/public/avatars/[0-9a-f-]{36}/[A-Za-z0-9._-]+$'
-  );
+-- avatar_url sadece bu projenin avatars deposunda KİŞİNİN KENDİ klasörünü gösterebilir
+-- (başka sitelere izleme linki konamaz, başkasının fotoğrafıyla görünülemez)
+create function public.enforce_own_avatar_url()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+  if new.avatar_url is not null and new.avatar_url !~ (
+    '^https://[a-z0-9]+\.supabase\.co/storage/v1/object/public/avatars/'
+    || new.id::text || '/[A-Za-z0-9._-]+$'
+  ) then
+    raise exception 'Profil fotoğrafı sadece kendi klasöründen olabilir';
+  end if;
+  return new;
+end;
+$$;
+
+create trigger profiles_avatar_url_owner
+  before insert or update of avatar_url on public.profiles
+  for each row execute function public.enforce_own_avatar_url();
 
 -- ─────────────────────────────────────────────────────────────
 -- Keşfet akışı: herkese açık tarifler + yazar + toplam istatistikler
@@ -69,6 +89,8 @@ begin
   if p_sort not in ('trend', 'top', 'new') then
     raise exception 'Geçersiz sıralama';
   end if;
+  -- Aşırı uzun arama metni tam tablo taramasını pahalılaştırmasın
+  p_query := left(coalesce(p_query, ''), 100);
 
   -- ponytail: her tarif için alt sorgular; binlerce public tarifte istatistik tablosu/materialized view'a geçilecek
   return query
@@ -103,7 +125,7 @@ begin
     end desc nulls last,
     r.created_at desc
   limit least(greatest(p_limit, 1), 50)
-  offset greatest(p_offset, 0);
+  offset least(greatest(p_offset, 0), 10000);
 end;
 $$;
 
