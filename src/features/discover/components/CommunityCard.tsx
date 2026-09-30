@@ -5,6 +5,9 @@ import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/ui/Avatar';
 import { FormError } from '@/components/ui/FormError';
 import { levelTitle } from '@/features/gamification/levels';
+import { ReportButton } from '@/features/moderation/components/ReportButton';
+import { isPermissionError, penaltyUntilText } from '@/features/moderation/penalties';
+import { useMuteStatus } from '@/features/moderation/useMuteStatus';
 import type { RecipeAuthor } from '@/features/recipes/recipesApi';
 import { useKukkiTheme } from '@/theme/ThemeProvider';
 import { RADIUS, SPACING } from '@/theme/tokens';
@@ -27,6 +30,7 @@ export function CommunityCard({ recipeId, isMine, isPublic, author }: CommunityC
   const [version, setVersion] = useState(0);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const mute = useMuteStatus();
 
   useEffect(() => {
     if (!isPublic) return;
@@ -62,7 +66,7 @@ export function CommunityCard({ recipeId, isMine, isPublic, author }: CommunityC
       setVersion((v) => v + 1);
     } catch (e) {
       console.warn('Puan kaydedilemedi', e);
-      setError('Puanın kaydedilemedi, tekrar dene.');
+      setError(isPermissionError(e) ? 'Topluluk cezan sürdüğü için şu an puan veremezsin.' : 'Puanın kaydedilemedi, tekrar dene.');
     } finally {
       setSaving(false);
     }
@@ -94,6 +98,10 @@ export function CommunityCard({ recipeId, isMine, isPublic, author }: CommunityC
             <AppText variant="bodySm" color="textMuted">
               🌍 Bu tarifin Keşfet&apos;te yayında.
             </AppText>
+          ) : mute.penalty ? (
+            <AppText variant="bodySm" color="error">
+              🔇 Topluluk cezan nedeniyle {penaltyUntilText(mute.penalty.endsAt)} puan veremezsin.
+            </AppText>
           ) : (
             <View style={styles.rate}>
               <AppText variant="labelLg">{stats.myRating ? 'Puanın (değiştirebilirsin):' : 'Bu tarife puan ver:'}</AppText>
@@ -103,6 +111,11 @@ export function CommunityCard({ recipeId, isMine, isPublic, author }: CommunityC
         </>
       )}
       {error && <FormError text={error} />}
+      {!isMine && (
+        <View style={styles.report}>
+          <ReportButton targetType="recipe" targetId={recipeId} />
+        </View>
+      )}
     </View>
   );
 }
@@ -113,4 +126,5 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   statsRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: SPACING.sm },
   rate: { gap: 4 },
+  report: { alignItems: 'flex-end' },
 });

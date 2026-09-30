@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react';
 
+import { logProfanityAttempt } from '@/features/moderation/moderationApi';
+import { isPermissionError, isProfanityError } from '@/features/moderation/penalties';
+import { PROFANITY_MESSAGE } from '@/features/moderation/profanity';
 import type { LoadStatus } from '@/lib/loadStatus';
 
 import {
@@ -57,11 +60,25 @@ export function useComments(recipeId: string) {
     }
   };
 
-  const add = (body: string, isSuggestion: boolean) =>
-    run(async () => {
+  const add = async (body: string, isSuggestion: boolean) => {
+    setActionError(null);
+    try {
       const created = await addComment(recipeId, body, isSuggestion);
       setComments((prev) => [created, ...prev]);
-    }, 'Yorumun gönderilemedi, tekrar dene.');
+      return true;
+    } catch (error) {
+      if (isProfanityError(error)) {
+        logProfanityAttempt('yorum');
+        setActionError(PROFANITY_MESSAGE);
+      } else if (isPermissionError(error)) {
+        setActionError('Topluluk cezan sürdüğü için şu an yorum yazamazsın.');
+      } else {
+        console.warn('Yorum gönderilemedi', error);
+        setActionError('Yorumun gönderilemedi, tekrar dene.');
+      }
+      return false;
+    }
+  };
 
   const remove = (id: string) =>
     run(async () => {
