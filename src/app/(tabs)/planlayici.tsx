@@ -1,12 +1,4 @@
-import { PlaceholderScreen } from '@/components/PlaceholderScreen';
+import { ShoppingListScreen } from '@/features/shopping/ShoppingListScreen';
 
-export default function PlanlayiciScreen() {
-  return (
-    <PlaceholderScreen
-      icon="calendar-month"
-      eyebrow="Haftalık Planlayıcı & Alışveriş"
-      title="Haftanın Menüsü"
-      description="Haftalık yemek programını planla; eksik malzemeler otomatik olarak alışveriş listene eklensin."
-    />
-  );
-}
+// ponytail: haftalık planlayıcı gelene kadar sekmenin ana içeriği alışveriş listesi
+export default ShoppingListScreen;
