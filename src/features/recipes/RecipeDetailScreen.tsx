@@ -12,6 +12,9 @@ import { HintCard, LoadState } from '@/components/ui/HintCard';
 import { Tag } from '@/components/ui/Tag';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { matchRecipe } from '@/features/pantry/pantryUtils';
+import { AddToCollectionModal } from '@/features/collections/components/AddToCollectionModal';
+import { CollectionEditorModal } from '@/features/collections/components/CollectionEditorModal';
+import { useCollections } from '@/features/collections/useCollections';
 import { usePantry } from '@/features/pantry/usePantry';
 import { itemsToAdd } from '@/features/shopping/shoppingUtils';
 import { useShoppingList } from '@/features/shopping/useShoppingList';
@@ -34,6 +37,8 @@ export function RecipeDetailScreen() {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const shopping = useShoppingList();
+  const collections = useCollections();
+  const [collectionModal, setCollectionModal] = useState<'pick' | 'new' | null>(null);
   const [shoppingNotice, setShoppingNotice] = useState<string | null>(null);
 
   if (status !== 'ready' || !detail) {
@@ -207,6 +212,16 @@ export function RecipeDetailScreen() {
           </View>
         </View>
 
+        <GameButton
+          label={(() => {
+            const count = collections.collections.filter((col) => col.recipeIds.includes(recipe.id)).length;
+            return count > 0 ? `📚 ${count} koleksiyonda` : '📚 Koleksiyona Ekle';
+          })()}
+          variant="soft"
+          onPress={() => setCollectionModal('pick')}
+          disabled={collections.status !== 'ready'}
+        />
+
         {recipe.tip && (
           <View style={[styles.tip, { backgroundColor: c.secondaryContainer }]}>
             <MaterialIcons name="tips-and-updates" size={22} color={c.onSecondaryContainer} />
@@ -256,6 +271,25 @@ export function RecipeDetailScreen() {
               </AppText>
             </Pressable>
           ))}
+        {collectionModal === 'pick' && (
+          <AddToCollectionModal
+            recipeId={recipe.id}
+            recipeTitle={recipe.title}
+            collections={collections.collections}
+            error={collections.actionError}
+            onToggle={(collectionId) => collections.toggleRecipe(collectionId, recipe.id)}
+            onCreateNew={() => setCollectionModal('new')}
+            onClose={() => setCollectionModal(null)}
+          />
+        )}
+        {collectionModal === 'new' && (
+          <CollectionEditorModal
+            existing={collections.collections}
+            onSave={collections.create}
+            // Oluşturduktan sonra seçim listesine dön
+            onClose={() => setCollectionModal('pick')}
+          />
+        )}
       </Screen>
     </>
   );
