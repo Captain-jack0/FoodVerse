@@ -385,27 +385,38 @@ begin
   end if;
 
   return query
+  with grouped as (
+    select
+      rp.target_type as g_type,
+      rp.target_id as g_id,
+      (array_agg(rp.target_user_id))[1] as g_user,
+      count(distinct rp.reporter_id) as g_count,
+      array_agg(distinct rp.reason) as g_reasons,
+      array_remove(array_agg(distinct nullif(rp.note, '')), null) as g_notes,
+      min(rp.created_at) as g_first
+    from public.reports rp
+    where rp.status = 'open'
+    group by rp.target_type, rp.target_id
+  )
   select
-    rp.target_type,
-    rp.target_id,
-    max(rp.target_user_id::text)::uuid,
-    max(p.display_name),
-    max(coalesce(rc.title, cm.body)),
-    count(distinct rp.reporter_id),
-    array_agg(distinct rp.reason),
-    array_remove(array_agg(distinct nullif(rp.note, '')), null),
-    bool_or(coalesce(rc.hidden_at, cm.hidden_at) is not null),
-    (select count(*) from public.user_penalties up where up.user_id = max(rp.target_user_id::text)::uuid),
+    g.g_type,
+    g.g_id,
+    g.g_user,
+    p.display_name,
+    coalesce(rc.title, cm.body),
+    g.g_count,
+    g.g_reasons,
+    g.g_notes,
+    coalesce(rc.hidden_at, cm.hidden_at) is not null,
+    (select count(*) from public.user_penalties up where up.user_id = g.g_user),
     (select count(*) from public.moderation_events me
-      where me.user_id = max(rp.target_user_id::text)::uuid and me.created_at > now() - interval '30 days'),
-    min(rp.created_at)
-  from public.reports rp
-  left join public.recipes rc on rp.target_type = 'recipe' and rc.id = rp.target_id
-  left join public.comments cm on rp.target_type = 'comment' and cm.id = rp.target_id
-  left join public.profiles p on p.id = rp.target_user_id
-  where rp.status = 'open'
-  group by rp.target_type, rp.target_id
-  order by count(distinct rp.reporter_id) desc, min(rp.created_at)
+      where me.user_id = g.g_user and me.created_at > now() - interval '30 days'),
+    g.g_first
+  from grouped g
+  left join public.recipes rc on g.g_type = 'recipe' and rc.id = g.g_id
+  left join public.comments cm on g.g_type = 'comment' and cm.id = g.g_id
+  left join public.profiles p on p.id = g.g_user
+  order by g.g_count desc, g.g_first
   limit 200;
 end;
 $$;
