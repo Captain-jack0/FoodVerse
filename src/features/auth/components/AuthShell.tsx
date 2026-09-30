@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Brand } from '@/components/navigation/Brand';
+import { LegalLinks } from '@/features/legal/LegalLinks';
 import { useIsWide } from '@/hooks/useIsWide';
 import { useKukkiTheme } from '@/theme/ThemeProvider';
 import { RADIUS, SPACING } from '@/theme/tokens';
@@ -39,6 +40,9 @@ export function AuthShell({ hero, children }: AuthShellProps) {
           <View style={[styles.card, { backgroundColor: c.card }]}>{children}</View>
         </View>
       )}
+      <View style={styles.legal}>
+        <LegalLinks />
+      </View>
     </ScrollView>
   );
 }
@@ -46,6 +50,7 @@ export function AuthShell({ hero, children }: AuthShellProps) {
 const styles = StyleSheet.create({
   page: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: SPACING.md },
   row: { flexDirection: 'row', gap: SPACING.lg, width: '100%', maxWidth: 1200, alignSelf: 'center' },
+  legal: { marginTop: SPACING.lg },
   stack: { gap: SPACING.lg, width: '100%', maxWidth: 520, alignSelf: 'center', alignItems: 'center' },
   flex: { flex: 1 },
   hero: { flex: 1, borderRadius: RADIUS.xxl, padding: SPACING.xl, gap: SPACING.lg, justifyContent: 'center' },

@@ -179,9 +179,20 @@ export function SignUpScreen() {
           ]}>
           {form.acceptedTerms && <MaterialIcons name="check" size={16} color={c.onPrimary} />}
         </View>
-        {/* ponytail: Kullanım Koşulları ve KVKK metni yazılınca linklenecek */}
         <AppText variant="bodySm" color="textMuted" style={styles.flex}>
-          Kukki Kitchen Kullanım Koşullarını ve Gizlilik Politikasını kabul ediyorum.
+          Kukki Kitchen{' '}
+          <Link href={{ pathname: '/yasal/[doc]', params: { doc: 'kosullar' } }} style={{ color: c.primary }}>
+            Kullanım Koşullarını
+          </Link>{' '}
+          kabul ediyorum;{' '}
+          <Link href={{ pathname: '/yasal/[doc]', params: { doc: 'kvkk' } }} style={{ color: c.primary }}>
+            KVKK Aydınlatma Metni
+          </Link>{' '}
+          ve{' '}
+          <Link href={{ pathname: '/yasal/[doc]', params: { doc: 'gizlilik' } }} style={{ color: c.primary }}>
+            Gizlilik Politikasını
+          </Link>{' '}
+          okudum.
         </AppText>
       </Pressable>
       {errors.acceptedTerms && (

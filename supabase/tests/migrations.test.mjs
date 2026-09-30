@@ -129,5 +129,16 @@ expect('Sahip tarif fotoğrafını güncelleyebilir', (await as(B, `update publi
 const feedCols = await as(D, `select photo_url from public.discover_feed('new', '', 5, 0)`);
 expect('Keşfet akışı fotoğraf döndürür', feedCols.ok, feedCols.err);
 
+// 0009: hesabımı sil
+const countFor = async (uid) =>
+  (await db.query(`select (select count(*) from public.profiles where id = $1)::int p, (select count(*) from public.recipes where author_id = $1)::int r, (select count(*) from public.comments where user_id = $1)::int c`, [uid])).rows[0];
+const beforeDelete = await countFor(B);
+expect('Silmeden önce verisi var', beforeDelete.p === 1 && beforeDelete.r > 0 && beforeDelete.c > 0, JSON.stringify(beforeDelete));
+expect('Giriş yapmamış hesap silemez', !(await as('', `select public.delete_my_account()`)).ok);
+expect('Kullanıcı kendi hesabını siler', (await as(B, `select public.delete_my_account()`)).ok);
+const afterDelete = await countFor(B);
+expect('Profil, tarif ve yorumları zincirleme silinir', afterDelete.p === 0 && afterDelete.r === 0 && afterDelete.c === 0, JSON.stringify(afterDelete));
+expect('Başkasının verisine dokunmaz', (await countFor(A)).p === 1);
+
 console.log(failures === 0 ? '\nTÜM TESTLER GEÇTİ' : `\n${failures} TEST BAŞARISIZ`);
 process.exit(failures === 0 ? 0 : 1);

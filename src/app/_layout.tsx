@@ -48,6 +48,9 @@ function RootNavigator() {
         </Stack.Protected>
         {/* Sıfırlama bağlantısı oturum kurar; oturum varken de yokken de açılabilmeli */}
         <Stack.Screen name="yeni-sifre" />
+        {/* Yasal metinler ve Hakkımızda herkese açık (mağaza incelemesi ve giriş öncesi okuma için) */}
+        <Stack.Screen name="yasal/[doc]" />
+        <Stack.Screen name="hakkimizda" />
       </Stack>
     </>
   );

@@ -11,6 +11,8 @@ import { GameButton } from '@/components/ui/GameButton';
 import { FormError } from '@/components/ui/FormError';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { levelTitle } from '@/features/gamification/levels';
+import { LegalLinks } from '@/features/legal/LegalLinks';
+import { AccountSection } from '@/features/profile/AccountSection';
 import { pickAndUploadAvatar } from '@/features/profile/avatarApi';
 import { PreferencesEditor } from '@/features/recommend/components/PreferencesEditor';
 import { supabase } from '@/lib/supabase';
@@ -124,6 +126,9 @@ export function ProfileScreen() {
 
         {error && <FormError text={error} />}
         <GameButton label={signingOut ? 'Çıkış yapılıyor...' : 'Çıkış Yap'} icon="logout" variant="soft" onPress={signOut} disabled={signingOut} />
+
+        {session && <AccountSection userId={session.user.id} email={session.user.email} />}
+        <LegalLinks />
       </Screen>
     </>
   );
