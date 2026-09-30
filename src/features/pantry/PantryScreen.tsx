@@ -17,6 +17,7 @@ import { SPACING } from '@/theme/tokens';
 
 import { CATEGORIES } from './categories';
 import { DailyQuestCard } from './components/DailyQuestCard';
+import { EditPantryItemModal } from './components/EditPantryItemModal';
 import { MagicPotCard } from './components/MagicPotCard';
 import { PantryHero } from './components/PantryHero';
 import { PantryItemCard } from './components/PantryItemCard';
@@ -48,6 +49,8 @@ export function PantryScreen() {
   const { items } = pantry;
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [category, setCategory] = useState<CategoryFilter>('all');
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const editing = items.find((item) => item.id === editingId);
 
   const selected = items.filter((item) => selectedIds.includes(item.id));
   const visible = category === 'all' ? items : items.filter((item) => item.category === category);
@@ -79,7 +82,7 @@ export function PantryScreen() {
     ) : (
       <>
         <AppText variant="bodySm" color="textMuted">
-          {"💡 Malzemeye dokununca Sihirli Tencere'ye eklenir; 🗑️ ile kilerden kaldırırsın."}
+          {"💡 Malzemeye dokununca Sihirli Tencere'ye eklenir; ✏️ ile düzenler, 🗑️ ile kaldırırsın."}
         </AppText>
         <View style={styles.grid}>
           {visible.map((item) => (
@@ -89,6 +92,7 @@ export function PantryScreen() {
                 selected={selectedIds.includes(item.id)}
                 onToggle={toggle}
                 onRemove={pantry.remove}
+                onEdit={setEditingId}
               />
             </View>
           ))}
@@ -155,6 +159,7 @@ export function PantryScreen() {
 
   return (
     <Screen ref={scrollRef}>
+      {editing && <EditPantryItemModal item={editing} onSave={pantry.update} onClose={() => setEditingId(null)} />}
       {isWide ? (
         <View style={styles.columns}>
           <View style={styles.main}>

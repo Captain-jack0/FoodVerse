@@ -40,12 +40,12 @@ export async function insertRecipe(payload: ReturnType<typeof toRecipeInsert>): 
   return data.id as string;
 }
 
-export type RecipeDetail = { recipe: Recipe; authorId: string };
+export type RecipeDetail = { recipe: Recipe; authorId: string; isPublic: boolean };
 
 /** Tek tarif (RLS: kendi tarifin ya da herkese açık tarif) */
 export async function fetchRecipe(id: string): Promise<RecipeDetail | null> {
   const [recipe, favorite, cooks] = await Promise.all([
-    supabase.from('recipes').select(`${RECIPE_COLUMNS}, author_id`).eq('id', id).maybeSingle(),
+    supabase.from('recipes').select(`${RECIPE_COLUMNS}, author_id, visibility`).eq('id', id).maybeSingle(),
     supabase.from('favorites').select('recipe_id').eq('recipe_id', id).maybeSingle(),
     supabase.from('cook_logs').select('id', { count: 'exact', head: true }).eq('recipe_id', id),
   ]);
@@ -54,10 +54,11 @@ export async function fetchRecipe(id: string): Promise<RecipeDetail | null> {
   if (cooks.error) throw cooks.error;
   if (!recipe.data) return null;
 
-  const row = recipe.data as RecipeRow & { author_id: string };
+  const row = recipe.data as RecipeRow & { author_id: string; visibility: string };
   return {
     recipe: toRecipe(row, { favorite: favorite.data !== null, cookedCount: cooks.count ?? 0 }),
     authorId: row.author_id,
+    isPublic: row.visibility === 'public',
   };
 }
 
@@ -68,5 +69,10 @@ export async function logCook(recipeId: string): Promise<void> {
 
 export async function deleteRecipe(id: string): Promise<void> {
   const { error } = await supabase.from('recipes').delete().eq('id', id);
+  if (error) throw error;
+}
+
+export async function updateRecipe(id: string, payload: ReturnType<typeof toRecipeInsert>): Promise<void> {
+  const { error } = await supabase.from('recipes').update(payload).eq('id', id);
   if (error) throw error;
 }

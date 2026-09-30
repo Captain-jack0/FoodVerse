@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import type { LoadStatus } from '@/lib/loadStatus';
 
-import { deletePantryItem, fetchPantry, insertPantryItem, type NewPantryItem } from './pantryApi';
+import { deletePantryItem, fetchPantry, insertPantryItem, updatePantryItem, type NewPantryItem } from './pantryApi';
 import type { PantryItem } from './types';
 
 const byExpiry = (a: PantryItem, b: PantryItem) => a.expiresOn.localeCompare(b.expiresOn);
@@ -49,6 +49,19 @@ export function usePantry() {
     }
   };
 
+  const update = async (id: string, item: NewPantryItem): Promise<boolean> => {
+    setActionError(null);
+    try {
+      const saved = await updatePantryItem(id, item);
+      setItems((prev) => prev.map((i) => (i.id === id ? saved : i)).sort(byExpiry));
+      return true;
+    } catch (error) {
+      console.warn('Malzeme güncellenemedi', error);
+      setActionError('Malzeme güncellenemedi, tekrar dene.');
+      return false;
+    }
+  };
+
   const remove = async (id: string) => {
     setActionError(null);
     const previous = items;
@@ -63,5 +76,5 @@ export function usePantry() {
     }
   };
 
-  return { items, status, actionError, reload, add, remove };
+  return { items, status, actionError, reload, add, update, remove };
 }

@@ -15,6 +15,7 @@ type PantryItemCardProps = {
   selected: boolean;
   onToggle: (id: string) => void;
   onRemove: (id: string) => void;
+  onEdit: (id: string) => void;
 };
 
 const STATUS_COLOR: Record<ExpiryStatus, keyof ThemeColors> = {
@@ -24,7 +25,7 @@ const STATUS_COLOR: Record<ExpiryStatus, keyof ThemeColors> = {
   longLasting: 'onSecondaryContainer',
 };
 
-export function PantryItemCard({ item, selected, onToggle, onRemove }: PantryItemCardProps) {
+export function PantryItemCard({ item, selected, onToggle, onRemove, onEdit }: PantryItemCardProps) {
   const { theme } = useKukkiTheme();
   const c = theme.colors;
   const days = daysLeft(item.expiresOn);
@@ -72,13 +73,22 @@ export function PantryItemCard({ item, selected, onToggle, onRemove }: PantryIte
             {expiryLabel(days)}
           </AppText>
         </View>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={`${item.name} kilerden kaldır`}
-          onPress={() => onRemove(item.id)}
-          hitSlop={8}>
-          <MaterialIcons name="delete-outline" size={20} color={c.textMuted} />
-        </Pressable>
+        <View style={styles.actions}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`${item.name} düzenle`}
+            onPress={() => onEdit(item.id)}
+            hitSlop={8}>
+            <MaterialIcons name="edit" size={18} color={c.textMuted} />
+          </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`${item.name} kilerden kaldır`}
+            onPress={() => onRemove(item.id)}
+            hitSlop={8}>
+            <MaterialIcons name="delete-outline" size={20} color={c.textMuted} />
+          </Pressable>
+        </View>
       </View>
     </Pressable>
   );
@@ -90,6 +100,7 @@ const styles = StyleSheet.create({
   emojiCircle: { width: 52, height: 52, borderRadius: 26, alignItems: 'center', justifyContent: 'center' },
   emoji: { fontSize: 28, lineHeight: 34 },
   check: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  actions: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm },
   bottom: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 2 },
   status: { flexDirection: 'row', alignItems: 'center', gap: 6, flexShrink: 1 },
   statusDot: { width: 8, height: 8, borderRadius: 4 },
