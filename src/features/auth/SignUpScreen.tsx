@@ -8,6 +8,7 @@ import { Chip } from '@/components/ui/Chip';
 import { GameButton } from '@/components/ui/GameButton';
 import { TextField } from '@/components/ui/TextField';
 import { supabase } from '@/lib/supabase';
+import { PREFERENCES, type PreferenceId } from '@/features/recommend/preferences';
 import { useKukkiTheme } from '@/theme/ThemeProvider';
 import { RADIUS, SPACING } from '@/theme/tokens';
 
@@ -16,15 +17,6 @@ import { AuthShell } from './components/AuthShell';
 import { FeatureRow } from './components/FeatureRow';
 import { FormError } from '@/components/ui/FormError';
 import { PasswordMeter } from './components/PasswordMeter';
-
-const PREFERENCES = [
-  { id: 'vejetaryen', label: 'Vejetaryen 🥑' },
-  { id: 'pratik', label: 'Pratik & Hızlı ⚡' },
-  { id: 'tatli', label: 'Tatlı Tutkunu 🍓' },
-  { id: 'glutensiz', label: 'Glutensiz 🌾' },
-] as const;
-
-type PreferenceId = (typeof PREFERENCES)[number]['id'];
 
 function SignUpHero() {
   return (

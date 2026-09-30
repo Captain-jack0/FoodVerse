@@ -12,6 +12,7 @@ import { FormError } from '@/components/ui/FormError';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { levelTitle } from '@/features/gamification/levels';
 import { pickAndUploadAvatar } from '@/features/profile/avatarApi';
+import { PreferencesEditor } from '@/features/recommend/components/PreferencesEditor';
 import { supabase } from '@/lib/supabase';
 import { useKukkiTheme } from '@/theme/ThemeProvider';
 import { RADIUS, SPACING, THEMES, type ThemeId } from '@/theme/tokens';
@@ -80,6 +81,8 @@ export function ProfileScreen() {
           <Stat label="Şef Puanı" value={`${profile?.xp ?? 0} XP`} />
           <Stat label="Seri" value={`🔥 ${profile?.streak_days ?? 0} gün`} />
         </View>
+
+        {session && <PreferencesEditor userId={session.user.id} />}
 
         <AppText variant="headlineMd">Mutfak Teması</AppText>
         <View style={styles.themes}>
