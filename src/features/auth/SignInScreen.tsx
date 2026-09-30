@@ -95,6 +95,12 @@ export function SignInScreen() {
         maxLength={72}
       />
 
+      <Link href="/sifre-sifirla" style={styles.forgot}>
+        <AppText variant="labelMd" color="tertiary">
+          Şifremi unuttum?
+        </AppText>
+      </Link>
+
       {formError && <FormError text={formError} />}
 
       <GameButton label={loading ? 'Kapı açılıyor...' : 'Mutfağa Giriş Yap 🚀'} variant="accent" onPress={submit} disabled={loading} />
@@ -115,6 +121,7 @@ export function SignInScreen() {
 
 const styles = StyleSheet.create({
   heroEmoji: { fontSize: 56, lineHeight: 68 },
+  forgot: { alignSelf: 'flex-end' },
   header: { gap: 4, marginBottom: SPACING.sm },
   footer: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 6, marginTop: SPACING.sm },
 });

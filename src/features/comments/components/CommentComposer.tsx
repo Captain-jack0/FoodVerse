@@ -3,6 +3,8 @@ import { Pressable, StyleSheet, Switch, TextInput, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
 import { GameButton } from '@/components/ui/GameButton';
+import { logProfanityAttempt } from '@/features/moderation/moderationApi';
+import { containsProfanity, PROFANITY_MESSAGE } from '@/features/moderation/profanity';
 import { useKukkiTheme } from '@/theme/ThemeProvider';
 import { FONT, RADIUS, SPACING } from '@/theme/tokens';
 
@@ -26,6 +28,11 @@ export function CommentComposer({ canSuggest, onSend }: CommentComposerProps) {
     const problem = validateComment(body);
     if (problem) {
       setError(problem);
+      return;
+    }
+    if (containsProfanity(body)) {
+      logProfanityAttempt('yorum');
+      setError(PROFANITY_MESSAGE);
       return;
     }
     setSending(true);

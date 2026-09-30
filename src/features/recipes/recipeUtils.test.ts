@@ -16,6 +16,7 @@ function recipe(partial: Partial<Recipe> & Pick<Recipe, 'id'>): Recipe {
     favorite: false,
     ingredients: [],
     steps: [],
+    photoUrl: null,
     ...partial,
   };
 }

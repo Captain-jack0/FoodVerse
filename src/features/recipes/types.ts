@@ -28,6 +28,8 @@ export type Recipe = {
   favorite: boolean;
   ingredients: Ingredient[];
   steps: string[];
+  /** Tarif fotoğrafı (yoksa emoji gösterilir) */
+  photoUrl: string | null;
 };
 
 export type SocialPlatform = 'instagram' | 'tiktok';

@@ -9,6 +9,7 @@ import { Screen } from '@/components/Screen';
 import { FormError } from '@/components/ui/FormError';
 import { GameButton } from '@/components/ui/GameButton';
 import { HintCard, LoadState } from '@/components/ui/HintCard';
+import { RecipeCover } from '@/components/ui/RecipeCover';
 import { Tag } from '@/components/ui/Tag';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { matchRecipe } from '@/features/pantry/pantryUtils';
@@ -170,9 +171,8 @@ export function RecipeDetailScreen() {
       <StackHeader title={recipe.title} />
       <Screen>
         <View style={[styles.hero, { backgroundColor: c.surfaceLow }, isWide && styles.heroWide]}>
-          <View style={[styles.cover, { backgroundColor: c.surfaceHigh }]}>
-            <AppText style={styles.coverEmoji}>{recipe.emoji}</AppText>
-          </View>
+          <RecipeCover photoUrl={recipe.photoUrl} emoji={recipe.emoji} height={160} emojiSize={88} style={styles.cover}>
+          </RecipeCover>
           <View style={[styles.heroText, isWide && styles.flex]}>
             <View style={styles.rowBetween}>
               <AppText variant={isWide ? 'headlineXl' : 'headlineXlMobile'} style={styles.flex}>
@@ -223,6 +223,14 @@ export function RecipeDetailScreen() {
           onPress={() => setCollectionModal('pick')}
           disabled={collections.status !== 'ready'}
         />
+
+        {detail.isHidden && (
+          <HintCard
+            emoji="🙈"
+            title="Bu tarif incelemede"
+            text="Birkaç kişi şikayet ettiği için tarif Keşfet'ten geçici olarak kaldırıldı. Yönetici inceleyince tekrar yayına alınabilir. Sen görmeye ve pişirmeye devam edebilirsin."
+          />
+        )}
 
         <CommunityCard recipeId={recipe.id} isMine={isMine} isPublic={detail.isPublic} author={detail.author} />
 
@@ -307,8 +315,7 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   hero: { borderRadius: RADIUS.xl, padding: SPACING.lg, gap: SPACING.md },
   heroWide: { flexDirection: 'row', alignItems: 'center' },
-  cover: { height: 160, minWidth: 200, borderRadius: RADIUS.lg, alignItems: 'center', justifyContent: 'center' },
-  coverEmoji: { fontSize: 88, lineHeight: 104 },
+  cover: { minWidth: 200, borderRadius: RADIUS.lg },
   heroText: { gap: SPACING.sm },
   rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: SPACING.sm },
   tags: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },

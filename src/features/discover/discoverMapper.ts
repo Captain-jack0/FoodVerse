@@ -11,6 +11,7 @@ export type DiscoverItem = {
   minutes: number;
   difficulty: Difficulty;
   tags: RecipeTag[];
+  photoUrl: string | null;
   createdAt: string;
   author: Author;
   avgRating: number;
@@ -28,6 +29,7 @@ export type DiscoverRow = {
   minutes: number;
   difficulty: number;
   tags: string[];
+  photo_url: string | null;
   created_at: string;
   author_id: string;
   author_name: string;
@@ -48,6 +50,7 @@ export function toDiscoverItem(row: DiscoverRow): DiscoverItem {
     minutes: row.minutes,
     difficulty: ([1, 2, 3].includes(row.difficulty) ? row.difficulty : 1) as Difficulty,
     tags: row.tags.filter((t): t is RecipeTag => t in RECIPE_TAGS),
+    photoUrl: row.photo_url ?? null,
     createdAt: row.created_at,
     author: { id: row.author_id, name: row.author_name, avatarUrl: row.author_avatar, level: row.author_level },
     avgRating: Number(row.avg_rating),
