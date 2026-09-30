@@ -90,8 +90,9 @@ create policy "Görebildiği tarifin sürümlerini okur"
   on public.recipe_versions for select to authenticated
   using (public.can_view_recipe(recipe_id));
 
--- Ekleme/değiştirme sadece publish_recipe_version RPC'si ile (istemciye politika yok)
-revoke all on public.recipe_versions from anon;
+-- Ekleme/değiştirme sadece publish_recipe_version RPC'si ile; istemci sadece okuyabilir
+revoke all on public.recipe_versions from public, anon, authenticated;
+grant select on public.recipe_versions to authenticated;
 
 create function public.publish_recipe_version(p_recipe_id uuid, p_note text, p_applied uuid[])
 returns int
@@ -103,6 +104,10 @@ declare
   v_version int;
   v_snapshot jsonb;
 begin
+  if coalesce(array_length(p_applied, 1), 0) > 200 then
+    raise exception 'Bir sürümde en fazla 200 öneri işaretlenebilir';
+  end if;
+
   -- Sahiplik kontrolü + aynı anda iki yayında numara çakışmasın diye satır kilidi
   select to_jsonb(r) - 'author_id' - 'visibility' - 'created_at'
   into v_snapshot
