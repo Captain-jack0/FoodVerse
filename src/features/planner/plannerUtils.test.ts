@@ -47,6 +47,7 @@ describe('weeklyMissing', () => {
     favorite: false,
     ingredients: ings.map(([name, amount]) => ({ name, amount })),
     steps: [],
+    photoUrl: null,
   });
   const pantry: PantryItem[] = [
     { id: 'p', name: 'Kırmızı Soğan', emoji: '🧅', category: 'sebze', quantity: '1', expiresOn: '2026-10-10' },

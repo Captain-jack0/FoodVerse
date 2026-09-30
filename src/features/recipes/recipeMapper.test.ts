@@ -15,6 +15,7 @@ const row: RecipeRow = {
   tip: null,
   ingredients: [{ name: 'mercimek', amount: '1 su bardağı' }, { name: 5 }, 'bozuk', { name: 'soğan' }],
   steps: ['Kavur.', 42, 'Pişir.'],
+  photo_url: 'https://x.supabase.co/storage/v1/object/public/recipe-photos/u/p.jpg',
 };
 
 describe('toRecipe', () => {
@@ -28,6 +29,7 @@ describe('toRecipe', () => {
       source: { type: 'instagram', url: 'https://www.instagram.com/reel/x/' },
       favorite: true,
       cookedCount: 3,
+      photoUrl: 'https://x.supabase.co/storage/v1/object/public/recipe-photos/u/p.jpg',
     });
     expect(recipe.tip).toBeUndefined();
   });

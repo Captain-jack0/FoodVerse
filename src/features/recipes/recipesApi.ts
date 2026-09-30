@@ -42,14 +42,21 @@ export async function insertRecipe(payload: ReturnType<typeof toRecipeInsert>): 
 
 export type RecipeAuthor = { name: string; avatarUrl: string | null; level: number };
 
-export type RecipeDetail = { recipe: Recipe; authorId: string; isPublic: boolean; author: RecipeAuthor | null };
+export type RecipeDetail = {
+  recipe: Recipe;
+  authorId: string;
+  isPublic: boolean;
+  /** Şikayetler nedeniyle gizlendi (sahibi ve yönetici görür) */
+  isHidden: boolean;
+  author: RecipeAuthor | null;
+};
 
 /** Tek tarif (RLS: kendi tarifin ya da herkese açık tarif) */
 export async function fetchRecipe(id: string): Promise<RecipeDetail | null> {
   const [recipe, favorite, cooks] = await Promise.all([
     supabase
       .from('recipes')
-      .select(`${RECIPE_COLUMNS}, author_id, visibility, author:profiles(display_name, avatar_url, level)`)
+      .select(`${RECIPE_COLUMNS}, author_id, visibility, hidden_at, author:profiles(display_name, avatar_url, level)`)
       .eq('id', id)
       .maybeSingle(),
     supabase.from('favorites').select('recipe_id').eq('recipe_id', id).maybeSingle(),
@@ -64,6 +71,7 @@ export async function fetchRecipe(id: string): Promise<RecipeDetail | null> {
   const row = recipe.data as unknown as RecipeRow & {
     author_id: string;
     visibility: string;
+    hidden_at: string | null;
     // Tipler üretilmediği için supabase-js diziye benzetiyor; çalışma anında tek nesne gelir
     author: AuthorRow | AuthorRow[] | null;
   };
@@ -72,6 +80,7 @@ export async function fetchRecipe(id: string): Promise<RecipeDetail | null> {
     recipe: toRecipe(row, { favorite: favorite.data !== null, cookedCount: cooks.count ?? 0 }),
     authorId: row.author_id,
     isPublic: row.visibility === 'public',
+    isHidden: row.hidden_at !== null,
     author: authorRow ? { name: authorRow.display_name, avatarUrl: authorRow.avatar_url, level: authorRow.level } : null,
   };
 }
