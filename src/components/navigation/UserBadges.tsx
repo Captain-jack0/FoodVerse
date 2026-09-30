@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
+import { Avatar } from '@/components/ui/Avatar';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { levelTitle } from '@/features/gamification/levels';
 import { useKukkiTheme } from '@/theme/ThemeProvider';
@@ -49,8 +50,8 @@ export function UserBadges({ compact }: { compact: boolean }) {
         accessibilityRole="button"
         accessibilityLabel="Profil ve ayarlar"
         onPress={() => router.push('/profil')}
-        style={[styles.avatar, compact && styles.avatarSmall, { backgroundColor: c.primary }]}>
-        <MaterialIcons name="person" size={compact ? 18 : 22} color={c.onPrimary} />
+        style={styles.avatarButton}>
+        <Avatar url={profile?.avatar_url} name={profile?.display_name ?? 'Şef'} size={compact ? 32 : 40} />
       </Pressable>
     </View>
   );
@@ -68,13 +69,5 @@ const styles = StyleSheet.create({
   },
   levelPill: { paddingVertical: 6, paddingHorizontal: SPACING.md, gap: SPACING.sm, marginRight: SPACING.sm },
   xp: { paddingHorizontal: SPACING.sm, paddingVertical: 2, borderRadius: RADIUS.full },
-  avatarSmall: { width: 32, height: 32 },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: RADIUS.full,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: 4,
-  },
+  avatarButton: { marginLeft: 4 },
 });

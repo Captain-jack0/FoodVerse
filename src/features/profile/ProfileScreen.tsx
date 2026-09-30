@@ -5,10 +5,12 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { AppText } from '@/components/AppText';
 import { StackHeader } from '@/components/navigation/StackHeader';
 import { Screen } from '@/components/Screen';
+import { Avatar } from '@/components/ui/Avatar';
 import { GameButton } from '@/components/ui/GameButton';
 import { FormError } from '@/components/ui/FormError';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { levelTitle } from '@/features/gamification/levels';
+import { pickAndUploadAvatar } from '@/features/profile/avatarApi';
 import { supabase } from '@/lib/supabase';
 import { useKukkiTheme } from '@/theme/ThemeProvider';
 import { RADIUS, SPACING, THEMES, type ThemeId } from '@/theme/tokens';
@@ -16,9 +18,26 @@ import { RADIUS, SPACING, THEMES, type ThemeId } from '@/theme/tokens';
 export function ProfileScreen() {
   const { theme, setThemeId } = useKukkiTheme();
   const c = theme.colors;
-  const { session, profile } = useAuth();
+  const { session, profile, refreshProfile } = useAuth();
   const [signingOut, setSigningOut] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const changePhoto = async () => {
+    if (!session) return;
+    setUploading(true);
+    setError(null);
+    try {
+      const result = await pickAndUploadAvatar(session.user.id, profile?.avatar_url ?? null);
+      if (result.ok) refreshProfile();
+      else if (result.message) setError(result.message);
+    } catch (e) {
+      console.warn('Profil fotoğrafı yüklenemedi', e);
+      setError('Fotoğraf yüklenemedi, internet bağlantını kontrol edip tekrar dene.');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const signOut = async () => {
     setSigningOut(true);
@@ -36,9 +55,17 @@ export function ProfileScreen() {
       <StackHeader title="Profil & Ayarlar" />
       <Screen>
         <View style={[styles.card, { backgroundColor: c.surfaceLow }]}>
-          <View style={[styles.avatar, { backgroundColor: c.primary }]}>
-            <MaterialIcons name="person" size={36} color={c.onPrimary} />
-          </View>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Profil fotoğrafını değiştir"
+            onPress={changePhoto}
+            disabled={uploading}
+            style={styles.avatarWrap}>
+            <Avatar url={profile?.avatar_url} name={profile?.display_name ?? 'Şef'} size={72} />
+            <View style={[styles.cameraBadge, { backgroundColor: c.secondaryContainer }]}>
+              <MaterialIcons name={uploading ? 'hourglass-top' : 'photo-camera'} size={16} color={c.onSecondaryContainer} />
+            </View>
+          </Pressable>
           <View style={styles.flex}>
             <AppText variant="headlineLgMobile">{profile?.display_name ?? 'Şef'}</AppText>
             <AppText variant="bodySm" color="textMuted">
@@ -108,7 +135,17 @@ function Stat({ label, value }: { label: string; value: string }) {
 
 const styles = StyleSheet.create({
   card: { flexDirection: 'row', alignItems: 'center', gap: SPACING.md, padding: SPACING.lg, borderRadius: RADIUS.xl },
-  avatar: { width: 64, height: 64, borderRadius: 32, alignItems: 'center', justifyContent: 'center' },
+  avatarWrap: { position: 'relative' },
+  cameraBadge: {
+    position: 'absolute',
+    right: -2,
+    bottom: -2,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   flex: { flex: 1 },
   stats: { flexDirection: 'row', flexWrap: 'wrap', gap: SPACING.sm },
   stat: { flexGrow: 1, flexBasis: 140, padding: SPACING.md, borderRadius: RADIUS.lg, gap: 2 },
