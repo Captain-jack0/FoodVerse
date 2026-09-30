@@ -39,6 +39,7 @@ function RootNavigator() {
           <Stack.Screen name="pisir/[id]" />
           <Stack.Screen name="duzenle/[id]" />
           <Stack.Screen name="profil" />
+          <Stack.Screen name="yonetim" />
         </Stack.Protected>
         <Stack.Protected guard={!signedIn}>
           <Stack.Screen name="giris" />

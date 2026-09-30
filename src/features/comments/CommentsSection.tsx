@@ -5,6 +5,8 @@ import { AppText } from '@/components/AppText';
 import { FormError } from '@/components/ui/FormError';
 import { GameButton } from '@/components/ui/GameButton';
 import { LoadState } from '@/components/ui/HintCard';
+import { MuteBanner } from '@/features/moderation/components/MuteBanner';
+import { useMuteStatus } from '@/features/moderation/useMuteStatus';
 import { useKukkiTheme } from '@/theme/ThemeProvider';
 import { RADIUS, SPACING } from '@/theme/tokens';
 
@@ -25,6 +27,7 @@ export function CommentsSection({ recipeId, currentUserId, isRecipeOwner }: Comm
   const { theme } = useKukkiTheme();
   const c = theme.colors;
   const data = useComments(recipeId);
+  const mute = useMuteStatus();
   const [publishing, setPublishing] = useState(false);
 
   const openSuggestions = data.comments.filter((cm) => cm.suggestionStatus === 'open');
@@ -55,7 +58,7 @@ export function CommentsSection({ recipeId, currentUserId, isRecipeOwner }: Comm
 
       <View style={styles.block}>
         <AppText variant="headlineMd">💬 Yorumlar ({data.comments.length})</AppText>
-        <CommentComposer canSuggest={!isRecipeOwner} onSend={data.add} />
+        {mute.penalty ? <MuteBanner penalty={mute.penalty} /> : <CommentComposer canSuggest={!isRecipeOwner} onSend={data.add} />}
         {data.actionError && <FormError text={data.actionError} />}
         {data.status !== 'ready' ? (
           <LoadState status={data.status} onRetry={data.reload} />

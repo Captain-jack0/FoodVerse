@@ -1,4 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
@@ -113,6 +114,10 @@ export function ProfileScreen() {
             );
           })}
         </View>
+
+        {profile?.is_admin && (
+          <GameButton label="🛡️ Yönetici Paneli" variant="sunny" onPress={() => router.push('/yonetim')} />
+        )}
 
         {error && <FormError text={error} />}
         <GameButton label={signingOut ? 'Çıkış yapılıyor...' : 'Çıkış Yap'} icon="logout" variant="soft" onPress={signOut} disabled={signingOut} />
