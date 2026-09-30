@@ -22,6 +22,7 @@ function recipe(id: string, ings: string[], extra: Partial<Recipe> = {}): Recipe
     favorite: false,
     ingredients: ings.map((name) => ({ name, amount: '1' })),
     steps: ['x'],
+    photoUrl: null,
     ...extra,
   };
 }

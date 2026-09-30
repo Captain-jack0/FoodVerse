@@ -121,5 +121,13 @@ expect('Küfür denemesi yöneticiye düşer', prof.ok && prof.res.rows.length =
 expect('Avatar sadece kendi klasöründen', !(await as(B, `update public.profiles set avatar_url = 'https://abc.supabase.co/storage/v1/object/public/avatars/${A}/a.jpg' where id = '${B}'`)).ok);
 expect('Kendi avatarı kabul', (await as(B, `update public.profiles set avatar_url = 'https://abc.supabase.co/storage/v1/object/public/avatars/${B}/a.jpg' where id = '${B}'`)).ok);
 
+// 0008: tarif fotoğrafı
+const photoOk = await as(B, `insert into public.recipes (title, minutes, photo_url) values ('Fotolu', 10, 'https://abc.supabase.co/storage/v1/object/public/recipe-photos/${B}/p.jpg') returning id`);
+expect('Kendi klasöründen tarif fotoğrafı kabul', photoOk.ok, photoOk.err);
+expect('Başkasının klasöründen tarif fotoğrafı reddedilir', !(await as(B, `update public.recipes set photo_url = 'https://abc.supabase.co/storage/v1/object/public/recipe-photos/${A}/p.jpg' where id = '${photoOk.res?.rows[0]?.id}'`)).ok);
+expect('Sahip tarif fotoğrafını güncelleyebilir', (await as(B, `update public.recipes set photo_url = null where id = '${photoOk.res?.rows[0]?.id}'`)).ok);
+const feedCols = await as(D, `select photo_url from public.discover_feed('new', '', 5, 0)`);
+expect('Keşfet akışı fotoğraf döndürür', feedCols.ok, feedCols.err);
+
 console.log(failures === 0 ? '\nTÜM TESTLER GEÇTİ' : `\n${failures} TEST BAŞARISIZ`);
 process.exit(failures === 0 ? 0 : 1);

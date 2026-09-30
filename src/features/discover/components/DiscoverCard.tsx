@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/ui/Avatar';
+import { RecipeCover } from '@/components/ui/RecipeCover';
 import { Tag } from '@/components/ui/Tag';
 import { levelTitle } from '@/features/gamification/levels';
 import { DIFFICULTY_LABEL, RECIPE_TAGS } from '@/features/recipes/recipeTags';
@@ -26,8 +27,7 @@ export function DiscoverCard({ item }: { item: DiscoverItem }) {
         styles.card,
         { backgroundColor: c.card, transform: [{ translateY: pressed ? 2 : 0 }] },
       ]}>
-      <View style={[styles.cover, { backgroundColor: c.surfaceHigh }]}>
-        <AppText style={styles.coverEmoji}>{item.emoji}</AppText>
+      <RecipeCover photoUrl={item.photoUrl} emoji={item.emoji} height={130} emojiSize={64}>
         {firstTag && (
           <View style={styles.topLeft}>
             <Tag label={`${RECIPE_TAGS[firstTag].emoji} ${RECIPE_TAGS[firstTag].label}`} bg="card" />
@@ -36,7 +36,7 @@ export function DiscoverCard({ item }: { item: DiscoverItem }) {
         <View style={styles.bottomRight}>
           <Tag label={`⏱ ${item.minutes} dk · ${DIFFICULTY_LABEL[item.difficulty]}`} bg="card" />
         </View>
-      </View>
+      </RecipeCover>
 
       <View style={styles.body}>
         <AppText variant="headlineMd" numberOfLines={2}>
@@ -69,8 +69,6 @@ export function DiscoverCard({ item }: { item: DiscoverItem }) {
 
 const styles = StyleSheet.create({
   card: { borderRadius: RADIUS.xl, overflow: 'hidden', height: '100%', boxShadow: '0 4px 0 rgba(48, 60, 108, 0.08)' },
-  cover: { height: 130, alignItems: 'center', justifyContent: 'center' },
-  coverEmoji: { fontSize: 64, lineHeight: 76 },
   topLeft: { position: 'absolute', top: SPACING.sm, left: SPACING.sm },
   bottomRight: { position: 'absolute', bottom: SPACING.sm, right: SPACING.sm },
   body: { padding: SPACING.md, gap: SPACING.sm },

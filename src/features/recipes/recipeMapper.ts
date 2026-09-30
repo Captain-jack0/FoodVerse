@@ -15,10 +15,11 @@ export type RecipeRow = {
   tip: string | null;
   ingredients: unknown;
   steps: unknown;
+  photo_url: string | null;
 };
 
 export const RECIPE_COLUMNS =
-  'id, title, emoji, description, minutes, difficulty, tags, source_type, source_url, tip, ingredients, steps';
+  'id, title, emoji, description, minutes, difficulty, tags, source_type, source_url, tip, ingredients, steps, photo_url';
 
 function toSource(type: string, url: string | null): RecipeSource {
   if ((type === 'instagram' || type === 'tiktok') && url) return { type, url };
@@ -53,6 +54,7 @@ export function toRecipe(row: RecipeRow, extra: { favorite: boolean; cookedCount
     tip: row.tip ?? undefined,
     ingredients: toIngredients(row.ingredients),
     steps: toSteps(row.steps),
+    photoUrl: row.photo_url ?? null,
     ...extra,
   };
 }

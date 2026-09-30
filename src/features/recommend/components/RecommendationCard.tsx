@@ -2,6 +2,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
 import { GameButton } from '@/components/ui/GameButton';
+import { RecipeCover } from '@/components/ui/RecipeCover';
 import { Tag } from '@/components/ui/Tag';
 import { useKukkiTheme } from '@/theme/ThemeProvider';
 import { RADIUS, SPACING } from '@/theme/tokens';
@@ -29,8 +30,7 @@ export function RecommendationCard({ rec, badge, onOpen }: RecommendationCardPro
         styles.card,
         { backgroundColor: c.card, borderColor: badge ? c.secondaryContainer : 'transparent' },
       ]}>
-      <View style={[styles.cover, { backgroundColor: badge ? c.secondaryContainer : c.surfaceHigh }]}>
-        <AppText style={styles.coverEmoji}>{recipe.emoji}</AppText>
+      <RecipeCover photoUrl={recipe.photoUrl} emoji={recipe.emoji} height={120} emojiSize={56} bg={badge ? 'secondaryContainer' : 'surfaceHigh'}>
         <View style={styles.topLeft}>
           {badge ? (
             <Tag label={badge} bg="card" fg="onSecondaryContainer" />
@@ -46,7 +46,7 @@ export function RecommendationCard({ rec, badge, onOpen }: RecommendationCardPro
         <View style={styles.bottomRight}>
           <Tag label={`⏱ ${recipe.minutes} dk`} bg="card" />
         </View>
-      </View>
+      </RecipeCover>
 
       <View style={styles.body}>
         <AppText variant="headlineMd">{recipe.title}</AppText>
@@ -68,8 +68,6 @@ export function RecommendationCard({ rec, badge, onOpen }: RecommendationCardPro
 
 const styles = StyleSheet.create({
   card: { borderRadius: RADIUS.xl, overflow: 'hidden', borderWidth: 2, boxShadow: '0 4px 16px rgba(48, 60, 108, 0.08)' },
-  cover: { height: 120, alignItems: 'center', justifyContent: 'center' },
-  coverEmoji: { fontSize: 56, lineHeight: 68 },
   topLeft: { position: 'absolute', top: SPACING.sm, left: SPACING.sm },
   topRight: { position: 'absolute', top: SPACING.sm, right: SPACING.sm },
   bottomRight: { position: 'absolute', bottom: SPACING.sm, right: SPACING.sm },

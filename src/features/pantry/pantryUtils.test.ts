@@ -74,6 +74,7 @@ describe('matchRecipe', () => {
     favorite: false,
     ingredients: names.map((name) => ({ name, amount: '1' })),
     steps: [],
+    photoUrl: null,
   });
   const penne = recipe('penne', ['mantar', 'krema', 'penne', 'sarımsak']);
 

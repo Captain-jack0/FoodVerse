@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
 import { GameButton } from '@/components/ui/GameButton';
+import { RecipeCover } from '@/components/ui/RecipeCover';
 import { Tag } from '@/components/ui/Tag';
 import { useKukkiTheme } from '@/theme/ThemeProvider';
 import { RADIUS, SPACING } from '@/theme/tokens';
@@ -29,8 +30,7 @@ export function RecipeCard({ recipe, onToggleFavorite, onCook, onOpen }: RecipeC
       accessibilityLabel={`${recipe.title} tarifini aç`}
       onPress={() => onOpen(recipe.id)}
       style={({ pressed }) => [styles.card, { backgroundColor: c.card, transform: [{ translateY: pressed ? 2 : 0 }] }]}>
-      <View style={[styles.cover, { backgroundColor: c.surfaceHigh }]}>
-        <AppText style={styles.coverEmoji}>{recipe.emoji}</AppText>
+      <RecipeCover photoUrl={recipe.photoUrl} emoji={recipe.emoji} height={150} emojiSize={72}>
         {firstTag && (
           <View style={styles.topLeft}>
             <Tag label={`${RECIPE_TAGS[firstTag].emoji} ${RECIPE_TAGS[firstTag].label}`} bg="card" />
@@ -39,7 +39,7 @@ export function RecipeCard({ recipe, onToggleFavorite, onCook, onOpen }: RecipeC
         <View style={styles.bottomRight}>
           <Tag label={`🔁 ${recipe.cookedCount} kez pişirildi`} bg="card" />
         </View>
-      </View>
+      </RecipeCover>
 
       <View style={styles.body}>
         <View style={styles.titleRow}>
@@ -110,8 +110,6 @@ const styles = StyleSheet.create({
     height: '100%',
     boxShadow: '0 4px 0 rgba(48, 60, 108, 0.08)',
   },
-  cover: { height: 150, alignItems: 'center', justifyContent: 'center' },
-  coverEmoji: { fontSize: 72, lineHeight: 86 },
   topLeft: { position: 'absolute', top: SPACING.sm, left: SPACING.sm },
   bottomRight: { position: 'absolute', bottom: SPACING.sm, right: SPACING.sm },
   body: { padding: SPACING.md, gap: SPACING.sm, flex: 1 },
