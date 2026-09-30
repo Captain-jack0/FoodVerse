@@ -12,6 +12,7 @@ import { HintCard, LoadState } from '@/components/ui/HintCard';
 import { Tag } from '@/components/ui/Tag';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { matchRecipe } from '@/features/pantry/pantryUtils';
+import { CommentsSection } from '@/features/comments/CommentsSection';
 import { CommunityCard } from '@/features/discover/components/CommunityCard';
 import { AddToCollectionModal } from '@/features/collections/components/AddToCollectionModal';
 import { CollectionEditorModal } from '@/features/collections/components/CollectionEditorModal';
@@ -246,6 +247,10 @@ export function RecipeDetailScreen() {
             {ingredientsCard}
             {stepsCard}
           </>
+        )}
+
+        {detail.isPublic && (
+          <CommentsSection recipeId={recipe.id} currentUserId={session?.user.id} isRecipeOwner={isMine} />
         )}
 
         {isMine && (
