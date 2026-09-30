@@ -12,6 +12,7 @@ import { HintCard, LoadState } from '@/components/ui/HintCard';
 import { Tag } from '@/components/ui/Tag';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { matchRecipe } from '@/features/pantry/pantryUtils';
+import { CommunityCard } from '@/features/discover/components/CommunityCard';
 import { AddToCollectionModal } from '@/features/collections/components/AddToCollectionModal';
 import { CollectionEditorModal } from '@/features/collections/components/CollectionEditorModal';
 import { useCollections } from '@/features/collections/useCollections';
@@ -221,6 +222,8 @@ export function RecipeDetailScreen() {
           onPress={() => setCollectionModal('pick')}
           disabled={collections.status !== 'ready'}
         />
+
+        <CommunityCard recipeId={recipe.id} isMine={isMine} isPublic={detail.isPublic} author={detail.author} />
 
         {recipe.tip && (
           <View style={[styles.tip, { backgroundColor: c.secondaryContainer }]}>

@@ -39,7 +39,15 @@
           "imageWidth": 160
         }
       ],
-      "expo-sqlite"
+      "expo-sqlite",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Profil fotoğrafını seçebilmen için fotoğraflarına erişmemiz gerekiyor.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
