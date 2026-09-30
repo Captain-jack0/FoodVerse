@@ -11,6 +11,8 @@ export type Comment = {
   isSuggestion: boolean;
   suggestionStatus: SuggestionStatus | null;
   resolvedVersion: number | null;
+  /** Şikayetler nedeniyle gizlendi (sadece yazarı ve yönetici görür) */
+  hidden: boolean;
 };
 
 type AuthorRow = { id: string; display_name: string; avatar_url: string | null; level: number };
@@ -21,12 +23,13 @@ type CommentRow = {
   is_suggestion: boolean;
   suggestion_status: SuggestionStatus | null;
   resolved_version: number | null;
+  hidden_at: string | null;
   // supabase-js tipsiz sorguda dizi sanar; çalışma anında tek nesne gelir
   author: AuthorRow | AuthorRow[] | null;
 };
 
 const COLUMNS =
-  'id, body, created_at, is_suggestion, suggestion_status, resolved_version, author:profiles(id, display_name, avatar_url, level)';
+  'id, body, created_at, is_suggestion, suggestion_status, resolved_version, hidden_at, author:profiles(id, display_name, avatar_url, level)';
 
 function toComment(row: CommentRow): Comment {
   const a = Array.isArray(row.author) ? row.author[0] : row.author;
@@ -40,6 +43,7 @@ function toComment(row: CommentRow): Comment {
     isSuggestion: row.is_suggestion,
     suggestionStatus: row.suggestion_status,
     resolvedVersion: row.resolved_version,
+    hidden: row.hidden_at !== null,
   };
 }
 

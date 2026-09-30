@@ -51,20 +51,3 @@ export function matchRecipe(recipe: Recipe, pantry: PantryItem[]): RecipeMatch {
   const percent = recipe.ingredients.length === 0 ? 0 : Math.round((have.length / recipe.ingredients.length) * 100);
   return { have, missing, percent };
 }
-
-export type RankedRecipe = { recipe: Recipe; match: RecipeMatch; usesSelected: number };
-
-/** Önce seçili malzemeleri en çok kullanan, sonra eşleşme yüzdesi en yüksek tarif */
-export function rankRecipes(
-  recipes: Recipe[],
-  pantry: PantryItem[],
-  selected: PantryItem[],
-): RankedRecipe[] {
-  return recipes
-    .map((recipe) => ({
-      recipe,
-      match: matchRecipe(recipe, pantry),
-      usesSelected: recipe.ingredients.filter((ing) => hasIngredient(ing.name, selected)).length,
-    }))
-    .sort((a, b) => b.usesSelected - a.usesSelected || b.match.percent - a.match.percent);
-}

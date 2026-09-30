@@ -28,6 +28,8 @@ export type RecipeDraft = {
   ingredients: Ingredient[];
   steps: string[];
   isPublic: boolean;
+  /** Kayıtlı fotoğraf adresi (yeni seçilen fotoğraf formda ayrıca tutulur) */
+  photoUrl: string | null;
 };
 
 export function emptyDraft(sourceUrl = ''): RecipeDraft {
@@ -44,6 +46,7 @@ export function emptyDraft(sourceUrl = ''): RecipeDraft {
     ingredients: [{ name: '', amount: '' }],
     steps: [''],
     isPublic: false,
+    photoUrl: null,
   };
 }
 
@@ -63,6 +66,7 @@ export function draftFromRecipe(recipe: Recipe, isPublic: boolean): RecipeDraft 
     ingredients: recipe.ingredients.length > 0 ? recipe.ingredients : [{ name: '', amount: '' }],
     steps: recipe.steps.length > 0 ? recipe.steps : [''],
     isPublic,
+    photoUrl: recipe.photoUrl,
   };
 }
 
@@ -108,5 +112,6 @@ export function toRecipeInsert(draft: RecipeDraft) {
     ingredients: cleanIngredients(draft.ingredients),
     steps: cleanSteps(draft.steps),
     visibility: draft.isPublic ? 'public' : 'private',
+    photo_url: draft.photoUrl,
   };
 }

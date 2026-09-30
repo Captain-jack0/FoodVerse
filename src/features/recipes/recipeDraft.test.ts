@@ -48,6 +48,7 @@ describe('toRecipeInsert', () => {
       source_url: 'https://vm.tiktok.com/abc/',
       visibility: 'public',
       tip: null,
+      photo_url: null,
     });
   });
 
@@ -75,6 +76,7 @@ describe('draftFromRecipe', () => {
     favorite: true,
     ingredients: [{ name: 'yumurta', amount: '2' }],
     steps: ['Çırp.', 'Pişir.'],
+    photoUrl: null,
   };
 
   it('tarifi forma doldurur; forma yazılıp kaydedilince aynı veri çıkar', () => {
@@ -93,6 +95,12 @@ describe('draftFromRecipe', () => {
       steps: ['Çırp.', 'Pişir.'],
       visibility: 'public',
     });
+  });
+
+  it('fotoğraf adresi forma ve kayda taşınır', () => {
+    const draft = draftFromRecipe({ ...recipe, photoUrl: 'https://p/x.jpg' }, false);
+    expect(draft.photoUrl).toBe('https://p/x.jpg');
+    expect(toRecipeInsert(draft).photo_url).toBe('https://p/x.jpg');
   });
 
   it('aile tarifinde kaynak tipi korunur', () => {

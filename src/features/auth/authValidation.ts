@@ -69,3 +69,32 @@ export function authErrorMessage(error: unknown): string {
   const code = typeof error === 'object' && error !== null && 'code' in error ? String(error.code) : '';
   return AUTH_ERRORS[code] ?? 'Bir şeyler ters gitti. Lütfen tekrar dene.';
 }
+
+export function validateNewPassword(password: string, confirm: string): Partial<Record<'password' | 'confirm', string>> {
+  if (password.length < PASSWORD_MIN) return { password: `Şifren en az ${PASSWORD_MIN} karakter olmalı.` };
+  if (password !== confirm) return { confirm: 'Şifreler aynı değil.' };
+  return {};
+}
+
+function hashParams(url: string): URLSearchParams {
+  const hash = url.split('#')[1] ?? '';
+  return new URLSearchParams(hash);
+}
+
+/** E-posta bağlantısındaki (#access_token=…) oturum bilgisi; mobil uygulamada elle kurulur */
+export function parseAuthTokens(url: string): { accessToken: string; refreshToken: string; type: string } | null {
+  const params = hashParams(url);
+  const accessToken = params.get('access_token');
+  const refreshToken = params.get('refresh_token');
+  if (!accessToken || !refreshToken) return null;
+  return { accessToken, refreshToken, type: params.get('type') ?? '' };
+}
+
+/** Bağlantı Supabase'den hata ile döndüyse kullanıcıya gösterilecek mesaj */
+export function linkErrorMessage(url: string): string | null {
+  const params = hashParams(url);
+  if (!params.get('error')) return null;
+  return params.get('error_code') === 'otp_expired'
+    ? 'Bu bağlantının süresi dolmuş ya da daha önce kullanılmış. Yeni bir sıfırlama e-postası iste.'
+    : 'Bağlantı geçersiz. Yeni bir sıfırlama e-postası iste.';
+}

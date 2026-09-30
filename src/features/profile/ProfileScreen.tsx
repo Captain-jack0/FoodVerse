@@ -1,4 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
@@ -10,7 +11,10 @@ import { GameButton } from '@/components/ui/GameButton';
 import { FormError } from '@/components/ui/FormError';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { levelTitle } from '@/features/gamification/levels';
+import { LegalLinks } from '@/features/legal/LegalLinks';
+import { AccountSection } from '@/features/profile/AccountSection';
 import { pickAndUploadAvatar } from '@/features/profile/avatarApi';
+import { PreferencesEditor } from '@/features/recommend/components/PreferencesEditor';
 import { supabase } from '@/lib/supabase';
 import { useKukkiTheme } from '@/theme/ThemeProvider';
 import { RADIUS, SPACING, THEMES, type ThemeId } from '@/theme/tokens';
@@ -80,6 +84,8 @@ export function ProfileScreen() {
           <Stat label="Seri" value={`🔥 ${profile?.streak_days ?? 0} gün`} />
         </View>
 
+        {session && <PreferencesEditor userId={session.user.id} />}
+
         <AppText variant="headlineMd">Mutfak Teması</AppText>
         <View style={styles.themes}>
           {(Object.keys(THEMES) as ThemeId[]).map((id) => {
@@ -114,8 +120,15 @@ export function ProfileScreen() {
           })}
         </View>
 
+        {profile?.is_admin && (
+          <GameButton label="🛡️ Yönetici Paneli" variant="sunny" onPress={() => router.push('/yonetim')} />
+        )}
+
         {error && <FormError text={error} />}
         <GameButton label={signingOut ? 'Çıkış yapılıyor...' : 'Çıkış Yap'} icon="logout" variant="soft" onPress={signOut} disabled={signingOut} />
+
+        {session && <AccountSection userId={session.user.id} email={session.user.email} />}
+        <LegalLinks />
       </Screen>
     </>
   );

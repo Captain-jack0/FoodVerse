@@ -10,10 +10,17 @@ import { Chip } from '@/components/ui/Chip';
 import { FormError } from '@/components/ui/FormError';
 import { GameButton } from '@/components/ui/GameButton';
 import { TextField } from '@/components/ui/TextField';
+import { useAuth } from '@/features/auth/AuthProvider';
+import { logProfanityAttempt } from '@/features/moderation/moderationApi';
+import { isPermissionError, isProfanityError, penaltyUntilText } from '@/features/moderation/penalties';
+import { containsProfanity, PROFANITY_MESSAGE } from '@/features/moderation/profanity';
+import { useMuteStatus } from '@/features/moderation/useMuteStatus';
+import { removeImageByUrl, uploadImage, type PickedImage } from '@/lib/imageUpload';
 import { useKukkiTheme } from '@/theme/ThemeProvider';
 import { FONT, RADIUS, SPACING } from '@/theme/tokens';
 
 import { IngredientListEditor, StepListEditor } from './components/ListEditors';
+import { PhotoPicker } from './components/PhotoPicker';
 import { LIMITS, toRecipeInsert, validateDraft, type DraftErrors, type RecipeDraft } from './recipeDraft';
 import { RECIPE_TAGS } from './recipeTags';
 import type { Difficulty, RecipeTag } from './types';
@@ -54,6 +61,11 @@ type RecipeFormProps = {
   onSubmit: (payload: ReturnType<typeof toRecipeInsert>) => Promise<void>;
 };
 
+const PHOTO_BUCKET = 'recipe-photos';
+
+const MUTED_MESSAGE =
+  'Topluluk cezan sürdüğü için tarifi herkese açık paylaşamazsın. "Toplulukla paylaş"ı kapatıp kendi defterine kaydedebilirsin.';
+
 /** Yeni tarif ve düzenleme ekranlarının ortak formu */
 export function RecipeForm({ headerTitle, heading, submitLabel, initialDraft, onSubmit }: RecipeFormProps) {
   const { theme } = useKukkiTheme();
@@ -62,6 +74,10 @@ export function RecipeForm({ headerTitle, heading, submitLabel, initialDraft, on
   const [errors, setErrors] = useState<DraftErrors>({});
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const mute = useMuteStatus();
+  const { session } = useAuth();
+  // Yeni seçilen fotoğraf; sadece Kaydet'te yüklenir (vazgeçilirse depoda çöp kalmaz)
+  const [pendingPhoto, setPendingPhoto] = useState<PickedImage | null>(null);
 
   const set = <K extends keyof RecipeDraft>(key: K, value: RecipeDraft[K]) => {
     setDraft((prev) => ({ ...prev, [key]: value }));
@@ -78,14 +94,44 @@ export function RecipeForm({ headerTitle, heading, submitLabel, initialDraft, on
       setSaveError('Kaydetmeden önce kırmızı işaretli alanları düzelt.');
       return;
     }
+    if (draft.isPublic && mute.muted) {
+      setSaveError(MUTED_MESSAGE);
+      return;
+    }
+    const payload = toRecipeInsert(draft);
+    // Sadece toplulukla paylaşılan tarifte küfür kontrolü (kişisel defter kişiye özel)
+    if (
+      draft.isPublic &&
+      containsProfanity(
+        [payload.title, payload.description, payload.tip ?? '', ...payload.steps, ...payload.ingredients.map((i) => i.name)].join(' '),
+      )
+    ) {
+      logProfanityAttempt('tarif');
+      setSaveError(PROFANITY_MESSAGE);
+      return;
+    }
     setSaving(true);
     setSaveError(null);
     try {
-      await onSubmit(toRecipeInsert(draft));
+      if (pendingPhoto && session) {
+        payload.photo_url = await uploadImage(PHOTO_BUCKET, session.user.id, 'recipe', pendingPhoto);
+      }
+      await onSubmit(payload);
+      // Fotoğraf değiştiyse ya da kaldırıldıysa eskisini sil
+      if (initialDraft.photoUrl && initialDraft.photoUrl !== payload.photo_url) {
+        removeImageByUrl(PHOTO_BUCKET, initialDraft.photoUrl);
+      }
       router.back();
     } catch (error) {
-      console.warn('Tarif kaydedilemedi', error);
-      setSaveError('Tarif kaydedilemedi. İnternet bağlantını kontrol edip tekrar dene.');
+      if (isProfanityError(error)) {
+        logProfanityAttempt('tarif');
+        setSaveError(PROFANITY_MESSAGE);
+      } else if (isPermissionError(error)) {
+        setSaveError(MUTED_MESSAGE);
+      } else {
+        console.warn('Tarif kaydedilemedi', error);
+        setSaveError('Tarif kaydedilemedi. İnternet bağlantını kontrol edip tekrar dene.');
+      }
       setSaving(false);
     }
   };
@@ -107,6 +153,15 @@ export function RecipeForm({ headerTitle, heading, submitLabel, initialDraft, on
         </View>
 
         <Section title="Temel Bilgiler">
+          <PhotoPicker
+            savedUrl={draft.photoUrl}
+            pending={pendingPhoto}
+            onPick={setPendingPhoto}
+            onRemove={() => {
+              setPendingPhoto(null);
+              set('photoUrl', null);
+            }}
+          />
           <TextField
             label="Tarif Adı"
             icon="restaurant-menu"
@@ -216,10 +271,13 @@ export function RecipeForm({ headerTitle, heading, submitLabel, initialDraft, on
             <View style={styles.flex}>
               <AppText variant="labelLg">Toplulukla paylaş</AppText>
               <AppText variant="bodySm" color="textMuted">
-                {"Açarsan diğer şefler Keşfet'te görebilir, yorum ve oy verebilir."}
+                {mute.penalty
+                  ? `🔇 Topluluk cezan nedeniyle ${penaltyUntilText(mute.penalty.endsAt)} paylaşım kapalı.`
+                  : "Açarsan diğer şefler Keşfet'te görebilir, yorum ve oy verebilir."}
               </AppText>
             </View>
             <Switch
+              disabled={mute.muted && !draft.isPublic}
               value={draft.isPublic}
               onValueChange={(v) => set('isPublic', v)}
               accessibilityLabel="Toplulukla paylaş"

@@ -11,6 +11,8 @@ import { GameButton } from '@/components/ui/GameButton';
 import { HintCard, LoadState } from '@/components/ui/HintCard';
 import { Tag } from '@/components/ui/Tag';
 import { useMyRecipes } from '@/features/recipes/useMyRecipes';
+import { RecommendationCard } from '@/features/recommend/components/RecommendationCard';
+import { useRecommendations } from '@/features/recommend/useRecommendations';
 import { useIsWide } from '@/hooks/useIsWide';
 import { useKukkiTheme } from '@/theme/ThemeProvider';
 import { SPACING } from '@/theme/tokens';
@@ -21,8 +23,7 @@ import { EditPantryItemModal } from './components/EditPantryItemModal';
 import { MagicPotCard } from './components/MagicPotCard';
 import { PantryHero } from './components/PantryHero';
 import { PantryItemCard } from './components/PantryItemCard';
-import { RecipeSuggestionCard } from './components/RecipeSuggestionCard';
-import { freshnessScore, rankRecipes } from './pantryUtils';
+import { freshnessScore } from './pantryUtils';
 import { pantryQuest } from './pantryQuest';
 import type { PantryCategory } from './types';
 import { usePantry } from './usePantry';
@@ -54,7 +55,12 @@ export function PantryScreen() {
 
   const selected = items.filter((item) => selectedIds.includes(item.id));
   const visible = category === 'all' ? items : items.filter((item) => item.category === category);
-  const suggestions = rankRecipes(recipes, items, selected).slice(0, SUGGESTION_COUNT);
+  const { ranked, daily } = useRecommendations({ ownRecipes: recipes, pantry: items, selectedIds });
+  // Tencere boşken günün tarifi başta; malzeme seçilince seçime en uygunlar
+  const suggestions =
+    selected.length === 0 && daily
+      ? [daily, ...ranked.filter((r) => r !== daily)].slice(0, SUGGESTION_COUNT)
+      : ranked.slice(0, SUGGESTION_COUNT);
   const usedCategories = (Object.keys(CATEGORIES) as PantryCategory[]).filter((cat) =>
     items.some((item) => item.category === cat),
   );
@@ -127,7 +133,7 @@ export function PantryScreen() {
   );
 
   const suggestionsBody =
-    recipes.length === 0 ? (
+    ranked.length === 0 ? (
       <HintCard
         emoji="📖"
         title="Öneri için tarif lazım"
@@ -135,8 +141,13 @@ export function PantryScreen() {
         <GameButton label="Tarif Defterine Git" icon="menu-book" variant="soft" onPress={() => router.push('/tarifler')} />
       </HintCard>
     ) : (
-      suggestions.map((ranked, index) => (
-        <RecipeSuggestionCard key={ranked.recipe.id} ranked={ranked} highlighted={index === 0} onOpen={() => openRecipe(ranked.recipe.id)} />
+      suggestions.map((rec) => (
+        <RecommendationCard
+          key={rec.candidate.recipe.id}
+          rec={rec}
+          badge={rec === daily && selected.length === 0 ? '🌟 Günün Tarifi' : undefined}
+          onOpen={() => openRecipe(rec.candidate.recipe.id)}
+        />
       ))
     );
 
