@@ -10,6 +10,8 @@ export type Profile = {
   level: number;
   xp: number;
   streak_days: number;
+  /** Yönetici paneli için; sadece SQL Editor'den verilir */
+  is_admin: boolean;
 };
 
 type AuthContextValue = {
@@ -50,7 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
     supabase
       .from('profiles')
-      .select('id, display_name, avatar_url, level, xp, streak_days')
+      .select('id, display_name, avatar_url, level, xp, streak_days, is_admin')
       .eq('id', userId)
       .single()
       .then(({ data, error }) => {

@@ -10,6 +10,10 @@ import { Chip } from '@/components/ui/Chip';
 import { FormError } from '@/components/ui/FormError';
 import { GameButton } from '@/components/ui/GameButton';
 import { TextField } from '@/components/ui/TextField';
+import { logProfanityAttempt } from '@/features/moderation/moderationApi';
+import { isPermissionError, isProfanityError, penaltyUntilText } from '@/features/moderation/penalties';
+import { containsProfanity, PROFANITY_MESSAGE } from '@/features/moderation/profanity';
+import { useMuteStatus } from '@/features/moderation/useMuteStatus';
 import { useKukkiTheme } from '@/theme/ThemeProvider';
 import { FONT, RADIUS, SPACING } from '@/theme/tokens';
 
@@ -54,6 +58,9 @@ type RecipeFormProps = {
   onSubmit: (payload: ReturnType<typeof toRecipeInsert>) => Promise<void>;
 };
 
+const MUTED_MESSAGE =
+  'Topluluk cezan sürdüğü için tarifi herkese açık paylaşamazsın. "Toplulukla paylaş"ı kapatıp kendi defterine kaydedebilirsin.';
+
 /** Yeni tarif ve düzenleme ekranlarının ortak formu */
 export function RecipeForm({ headerTitle, heading, submitLabel, initialDraft, onSubmit }: RecipeFormProps) {
   const { theme } = useKukkiTheme();
@@ -62,6 +69,7 @@ export function RecipeForm({ headerTitle, heading, submitLabel, initialDraft, on
   const [errors, setErrors] = useState<DraftErrors>({});
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const mute = useMuteStatus();
 
   const set = <K extends keyof RecipeDraft>(key: K, value: RecipeDraft[K]) => {
     setDraft((prev) => ({ ...prev, [key]: value }));
@@ -78,14 +86,37 @@ export function RecipeForm({ headerTitle, heading, submitLabel, initialDraft, on
       setSaveError('Kaydetmeden önce kırmızı işaretli alanları düzelt.');
       return;
     }
+    if (draft.isPublic && mute.muted) {
+      setSaveError(MUTED_MESSAGE);
+      return;
+    }
+    const payload = toRecipeInsert(draft);
+    // Sadece toplulukla paylaşılan tarifte küfür kontrolü (kişisel defter kişiye özel)
+    if (
+      draft.isPublic &&
+      containsProfanity(
+        [payload.title, payload.description, payload.tip ?? '', ...payload.steps, ...payload.ingredients.map((i) => i.name)].join(' '),
+      )
+    ) {
+      logProfanityAttempt('tarif');
+      setSaveError(PROFANITY_MESSAGE);
+      return;
+    }
     setSaving(true);
     setSaveError(null);
     try {
-      await onSubmit(toRecipeInsert(draft));
+      await onSubmit(payload);
       router.back();
     } catch (error) {
-      console.warn('Tarif kaydedilemedi', error);
-      setSaveError('Tarif kaydedilemedi. İnternet bağlantını kontrol edip tekrar dene.');
+      if (isProfanityError(error)) {
+        logProfanityAttempt('tarif');
+        setSaveError(PROFANITY_MESSAGE);
+      } else if (isPermissionError(error)) {
+        setSaveError(MUTED_MESSAGE);
+      } else {
+        console.warn('Tarif kaydedilemedi', error);
+        setSaveError('Tarif kaydedilemedi. İnternet bağlantını kontrol edip tekrar dene.');
+      }
       setSaving(false);
     }
   };
@@ -216,10 +247,13 @@ export function RecipeForm({ headerTitle, heading, submitLabel, initialDraft, on
             <View style={styles.flex}>
               <AppText variant="labelLg">Toplulukla paylaş</AppText>
               <AppText variant="bodySm" color="textMuted">
-                {"Açarsan diğer şefler Keşfet'te görebilir, yorum ve oy verebilir."}
+                {mute.penalty
+                  ? `🔇 Topluluk cezan nedeniyle ${penaltyUntilText(mute.penalty.endsAt)} paylaşım kapalı.`
+                  : "Açarsan diğer şefler Keşfet'te görebilir, yorum ve oy verebilir."}
               </AppText>
             </View>
             <Switch
+              disabled={mute.muted && !draft.isPublic}
               value={draft.isPublic}
               onValueChange={(v) => set('isPublic', v)}
               accessibilityLabel="Toplulukla paylaş"

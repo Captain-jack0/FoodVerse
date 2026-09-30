@@ -9,7 +9,6 @@ import {
   expiryStatus,
   freshnessScore,
   matchRecipe,
-  rankRecipes,
 } from './pantryUtils';
 
 const TODAY = new Date(2026, 8, 29); // 29 Eylül 2026
@@ -60,7 +59,7 @@ describe('freshnessScore', () => {
   });
 });
 
-describe('matchRecipe / rankRecipes', () => {
+describe('matchRecipe', () => {
   const pantry = [item('Kültür Mantarı', '2026-10-03'), item('Yemek Kreması', '2026-09-30'), item('Penne Makarna', '2027-03-01')];
   const recipe = (id: string, names: string[]): Recipe => ({
     id,
@@ -77,7 +76,6 @@ describe('matchRecipe / rankRecipes', () => {
     steps: [],
   });
   const penne = recipe('penne', ['mantar', 'krema', 'penne', 'sarımsak']);
-  const sebze = recipe('sebze', ['kabak', 'domates', 'zeytinyağı']);
 
   it('kısmi ve Türkçe büyük/küçük harf duyarsız eşleşir', () => {
     const match = matchRecipe(penne, pantry);
@@ -86,8 +84,4 @@ describe('matchRecipe / rankRecipes', () => {
     expect(match.percent).toBe(75);
   });
 
-  it('seçili malzemeleri kullanan tarifi öne alır', () => {
-    const ranked = rankRecipes([sebze, penne], pantry, [pantry[1]]);
-    expect(ranked.map((r) => r.recipe.id)).toEqual(['penne', 'sebze']);
-  });
 });

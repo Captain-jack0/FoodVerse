@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { AppText } from '@/components/AppText';
 import { Avatar } from '@/components/ui/Avatar';
 import { Tag } from '@/components/ui/Tag';
+import { ReportButton } from '@/features/moderation/components/ReportButton';
 import { useKukkiTheme } from '@/theme/ThemeProvider';
 import { RADIUS, SPACING, type ThemeColors } from '@/theme/tokens';
 
@@ -51,10 +52,14 @@ export function CommentItem({ comment, isOwnComment, isRecipeOwner, onDelete, on
         </View>
         {tag && <Tag label={tag.label} bg={tag.bg} fg={tag.fg} />}
       </View>
+      {comment.hidden && (
+        <Tag label="🙈 Şikayetler nedeniyle incelemede — sadece sen görüyorsun" bg="surfaceHigh" fg="error" />
+      )}
 
       <AppText variant="bodyMd">{comment.body}</AppText>
 
       <View style={styles.actions}>
+        {!isOwnComment && <ReportButton targetType="comment" targetId={comment.id} />}
         {isRecipeOwner && comment.suggestionStatus === 'open' && (
           <Pressable accessibilityRole="button" onPress={() => onResolve(comment.id, 'dismissed')} hitSlop={6}>
             <AppText variant="labelMd" color="textMuted">

@@ -224,6 +224,14 @@ export function RecipeDetailScreen() {
           disabled={collections.status !== 'ready'}
         />
 
+        {detail.isHidden && (
+          <HintCard
+            emoji="🙈"
+            title="Bu tarif incelemede"
+            text="Birkaç kişi şikayet ettiği için tarif Keşfet'ten geçici olarak kaldırıldı. Yönetici inceleyince tekrar yayına alınabilir. Sen görmeye ve pişirmeye devam edebilirsin."
+          />
+        )}
+
         <CommunityCard recipeId={recipe.id} isMine={isMine} isPublic={detail.isPublic} author={detail.author} />
 
         {recipe.tip && (

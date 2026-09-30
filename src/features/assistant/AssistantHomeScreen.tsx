@@ -9,13 +9,14 @@ import { GameButton } from '@/components/ui/GameButton';
 import { HintCard, LoadState } from '@/components/ui/HintCard';
 import { Tag } from '@/components/ui/Tag';
 import { inDays } from '@/features/pantry/categories';
-import { rankRecipes } from '@/features/pantry/pantryUtils';
 import { usePantry } from '@/features/pantry/usePantry';
 import { useWeekPlans } from '@/features/planner/useWeekPlans';
 import { SLOTS } from '@/features/planner/types';
 import { fetchRecentlyCookedIds } from '@/features/recipes/recipesApi';
 import type { Recipe } from '@/features/recipes/types';
 import { useMyRecipes } from '@/features/recipes/useMyRecipes';
+import { RecommendationCard } from '@/features/recommend/components/RecommendationCard';
+import { useRecommendations } from '@/features/recommend/useRecommendations';
 import { useIsWide } from '@/hooks/useIsWide';
 import { useKukkiTheme } from '@/theme/ThemeProvider';
 import { RADIUS, SPACING } from '@/theme/tokens';
@@ -94,20 +95,27 @@ export function AssistantHomeScreen() {
     const recipe = plan ? byId.get(plan.recipeId) : undefined;
     return recipe ? [{ slot, recipe }] : [];
   });
-  const suggestions = rankRecipes(recipes, pantry.items, [])
-    .filter((r) => r.match.percent > 0)
-    .slice(0, 3);
+  const { ranked, daily } = useRecommendations({ ownRecipes: recipes, pantry: pantry.items });
+  const suggestions = ranked.filter((r) => r !== daily && r.matchPercent > 0).slice(0, 3);
   const recent = recentIds.flatMap((rid) => byId.get(rid) ?? []);
 
   const content =
     status !== 'ready' ? (
       <LoadState status={status} onRetry={reload} />
-    ) : recipes.length === 0 ? (
+    ) : ranked.length === 0 ? (
       <HintCard emoji="📖" title="Önce bir tarif ekle" text="Asistan, Tarif Defteri'ndeki tariflerle adım adım pişirmene yardım eder.">
         <GameButton label="İlk Tarifimi Yaz" icon="edit-note" variant="sunny" onPress={() => router.push('/tarif/yeni')} />
       </HintCard>
     ) : (
       <>
+        {daily && (
+          <RecommendationCard
+            rec={daily}
+            badge="🌟 Günün Tarifi"
+            onOpen={() => router.push({ pathname: '/tarif/[id]', params: { id: daily.candidate.recipe.id } })}
+          />
+        )}
+
         <Section title="📅 Bugünün planı">
           {planned.length === 0 ? (
             <AppText variant="bodySm" color="textMuted">
@@ -122,8 +130,12 @@ export function AssistantHomeScreen() {
 
         {suggestions.length > 0 && (
           <Section title="🧺 Kilerindekilerle yapabileceklerin">
-            {suggestions.map(({ recipe, match }) => (
-              <CookRow key={recipe.id} recipe={recipe} badge={`%${match.percent}`} />
+            {suggestions.map((rec) => (
+              <CookRow
+                key={rec.candidate.recipe.id}
+                recipe={rec.candidate.recipe}
+                badge={rec.candidate.origin === 'community' ? `🌍 %${rec.matchPercent}` : `%${rec.matchPercent}`}
+              />
             ))}
           </Section>
         )}
