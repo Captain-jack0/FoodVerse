@@ -44,7 +44,10 @@ function RootNavigator() {
         <Stack.Protected guard={!signedIn}>
           <Stack.Screen name="giris" />
           <Stack.Screen name="kayit" />
+          <Stack.Screen name="sifre-sifirla" />
         </Stack.Protected>
+        {/* Sıfırlama bağlantısı oturum kurar; oturum varken de yokken de açılabilmeli */}
+        <Stack.Screen name="yeni-sifre" />
       </Stack>
     </>
   );

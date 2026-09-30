@@ -1,6 +1,14 @@
 /// <reference types="jest" />
 
-import { authErrorMessage, passwordStrength, validateSignIn, validateSignUp } from './authValidation';
+import {
+  authErrorMessage,
+  linkErrorMessage,
+  parseAuthTokens,
+  passwordStrength,
+  validateNewPassword,
+  validateSignIn,
+  validateSignUp,
+} from './authValidation';
 
 describe('passwordStrength', () => {
   it.each([
@@ -61,5 +69,33 @@ describe('authErrorMessage', () => {
   it('bilinmeyen hatada genel mesaj', () => {
     expect(authErrorMessage(new Error('boom'))).toBe('Bir şeyler ters gitti. Lütfen tekrar dene.');
     expect(authErrorMessage(null)).toBe('Bir şeyler ters gitti. Lütfen tekrar dene.');
+  });
+});
+
+describe('validateNewPassword', () => {
+  it('kısa şifreyi ve eşleşmeyen tekrarı reddeder', () => {
+    expect(validateNewPassword('kisa', 'kisa')).toEqual({ password: 'Şifren en az 8 karakter olmalı.' });
+    expect(validateNewPassword('lezzetli1', 'lezzetli2')).toEqual({ confirm: 'Şifreler aynı değil.' });
+    expect(validateNewPassword('lezzetli1', 'lezzetli1')).toEqual({});
+  });
+});
+
+describe('parseAuthTokens', () => {
+  it('bağlantının # kısmından oturum bilgisini çıkarır', () => {
+    expect(
+      parseAuthTokens('kukkikitchen://yeni-sifre#access_token=AAA&expires_in=3600&refresh_token=RRR&type=recovery'),
+    ).toEqual({ accessToken: 'AAA', refreshToken: 'RRR', type: 'recovery' });
+  });
+
+  it('hata ya da eksik bilgi varsa null', () => {
+    expect(parseAuthTokens('kukkikitchen://yeni-sifre#error=access_denied&error_code=otp_expired')).toBeNull();
+    expect(parseAuthTokens('kukkikitchen://yeni-sifre')).toBeNull();
+  });
+
+  it('süresi dolmuş bağlantı hatasını tanır', () => {
+    expect(linkErrorMessage('https://x/yeni-sifre#error=access_denied&error_code=otp_expired')).toBe(
+      'Bu bağlantının süresi dolmuş ya da daha önce kullanılmış. Yeni bir sıfırlama e-postası iste.',
+    );
+    expect(linkErrorMessage('https://x/yeni-sifre')).toBeNull();
   });
 });
